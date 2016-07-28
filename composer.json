@@ -1,0 +1,14 @@
+{
+   "require": {
+      "guzzlehttp/guzzle": "~6.0",
+      "xiaoler/blade": "^0.2.2",
+      "indieteq/indieteq-php-my-sql-pdo-database-class":"~1.0"
+
+   },
+   "repositories": {
+      "packagist": {
+         "type": "composer",
+         "url": "https://packagist.phpcomposer.com"
+      }
+   }
+}
