@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "45dbf6cc87df4371a7d500a1cf114dae",
-    "content-hash": "36a6be6d986a68e3e60b27e8af5b32b5",
+    "hash": "b92edefdd26ba87a62aa09614986ec32",
+    "content-hash": "22117fa59233a018c4b3a95c2b9c8356",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -200,6 +200,92 @@
             "time": "2014-12-15 14:53:56"
         },
         {
+            "name": "jaeger/phpquery-single",
+            "version": "0.9.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jae-jae/phpQuery-single.git",
+                "reference": "4b1dc2b2625a4a142f21a0b85a4254c327dfc5c4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://packagist.phpcomposer.com/files/jae-jae/phpQuery-single/4b1dc2b2625a4a142f21a0b85a4254c327dfc5c4.zip",
+                "reference": "4b1dc2b2625a4a142f21a0b85a4254c327dfc5c4",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "phpQuery.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tobiasz Cudnik",
+                    "email": "tobiasz.cudnik@gmail.com",
+                    "homepage": "https://github.com/TobiaszCudnik",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Jaeger",
+                    "role": "Packager"
+                }
+            ],
+            "description": "phpQuery单文件版本，是Querylist的依赖(http://querylist.cc/)，phpQuery项目主页:http://code.google.com/p/phpquery/",
+            "homepage": "http://code.google.com/p/phpquery/",
+            "time": "2016-01-02 17:34:12"
+        },
+        {
+            "name": "jaeger/querylist",
+            "version": "V3.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jae-jae/QueryList.git",
+                "reference": "fbea1aaa9479624de92a1ebf143350d7165d819d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://packagist.phpcomposer.com/files/jae-jae/QueryList/fbea1aaa9479624de92a1ebf143350d7165d819d.zip",
+                "reference": "fbea1aaa9479624de92a1ebf143350d7165d819d",
+                "shasum": ""
+            },
+            "require": {
+                "jaeger/phpquery-single": "^0.9.5",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "QL\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jaeger",
+                    "email": "hj.q@qq.com"
+                }
+            ],
+            "description": "QueryList是基于phpQuery的无比强大的PHP采集工具",
+            "homepage": "http://querylist.cc",
+            "keywords": [
+                "QueryList",
+                "phpQuery",
+                "spider"
+            ],
+            "time": "2016-01-06 07:56:03"
+        },
+        {
             "name": "psr/http-message",
             "version": "1.0",
             "source": {
@@ -247,6 +333,52 @@
                 "response"
             ],
             "time": "2015-05-04 20:22:00"
+        },
+        {
+            "name": "workerman/workerman",
+            "version": "v3.3.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/walkor/Workerman.git",
+                "reference": "72dcfe49b70566be36cca7426542ea21dec2197b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://packagist.phpcomposer.com/files/walkor/Workerman/72dcfe49b70566be36cca7426542ea21dec2197b.zip",
+                "reference": "72dcfe49b70566be36cca7426542ea21dec2197b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "suggest": {
+                "ext-libevent": "For better performance."
+            },
+            "type": "project",
+            "autoload": {
+                "psr-4": {
+                    "Workerman\\": "./"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "walkor",
+                    "email": "walkor@workerman.net",
+                    "homepage": "http://www.workerman.net",
+                    "role": "Developer"
+                }
+            ],
+            "description": "An asynchronous event driven PHP framework for easily building fast, scalable network applications.",
+            "homepage": "http://www.workerman.net",
+            "keywords": [
+                "asynchronous",
+                "event-loop"
+            ],
+            "time": "2016-07-01 12:40:31"
         },
         {
             "name": "xiaoler/blade",
