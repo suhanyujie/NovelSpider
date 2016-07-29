@@ -20,14 +20,14 @@ $task->onWorkerStart = function($task) {
     if($task->id === 0){
         // 获取列表
         $novel = new Test();
-        //$list = $novel->getList();
+        $list = $novel->getList();
         //$redis = new Predis\Client();
         // 将列表存进redis存放
         // 从redis取出数据
         //$res = $redis->hgetall($keyConfig['list-key']);
-        $res = $novel->getListFromRedis($keyConfig['list-key']);
+        //$res = $novel->getListFromRedis($keyConfig['list-key']);
 
-        var_dump($res);
+        var_dump($list);
 
         // 读取redis队列,去爬取详情
         // 定时请求,保证获取最新

@@ -1,9 +1,10 @@
 <?php
-
 namespace Novel\NovelSpider\Controller;
 
 use QL\QueryList;
 use Predis\Client;
+use Novel\NovelSpider\Models\ListModel;
+
 
 class Test{
     // 只针对 "大宋王候" 的Novel
@@ -14,22 +15,43 @@ class Test{
         if(!$this->redisObj){
             $this->redisObj = new \Predis\Client();
         }
+        $lisrModel = new ListModel();
+
+        $data = [
+            'novel_id'=>1,
+            'url'=>'http://laravel.suhanyu.top',
+            'flag'=>0,
+        ];
+        $lisrModel->novel_id = 1;
+        $lisrModel->url = 'http://laravel.suhanyu.top';
+        $lisrModel->flag = 0;
+        $lisrModel->Create();
+
+
     }
 
     public function getList(){
-        $hj = QueryList::Query('http://www.biquwu.cc/biquge/17_17308/',
+        $url = 'http://www.biquwu.cc/biquge/17_17308/';
+        //$url = 'http://www.zreading.cn/';
+        $hj = QueryList::Query($url,
                                 array(
-                                    "latest"=>array('.article_texttitleb li:last','html'),
-                                    "list"=>array('.article_texttitleb li','html'),
+                                    "latest"=>array('li:last','html'),
+                                    "list"=>array('li','html'),
 
                                 ),
-                            'body','utf-8');
-        $data = $hj->getData(function($x){
-            return $x['list'];
+                            '.article_texttitleb','utf-8');
+        $data = $hj->getData(function($item){
+            $item['list'] = QueryList::Query($item['list'],array(
+                'link'=>array('a', 'href','',function($str){
+                            return $this->baseUrl.$str;
+                        }),
+                'title'=>array('a', 'text'),
+            ))->data;
+            return $item;
         });
-        //print_r($data);
-        return $data;
-    }
+
+        return $data[0]['list'];
+    }// end of function
 
     /**
      * 从redis获取列表
