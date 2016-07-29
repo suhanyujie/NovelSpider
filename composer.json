@@ -4,14 +4,9 @@
       "xiaoler/blade": "^0.2.2",
       "indieteq/indieteq-php-my-sql-pdo-database-class":"~1.0",
       "workerman/workerman": "^3.3",
-      "jaeger/querylist": "^3.1"
+      "jaeger/querylist": "^3.1",
+      "predis/predis": "^1.0"
 
-   },
-   "repositories": {
-      "packagist": {
-         "type": "composer",
-         "url": "https://packagist.phpcomposer.com"
-      }
    },
    "autoload": {
       "classmap": [
@@ -19,6 +14,12 @@
       ],
       "psr-4": {
          "Novel\\": "App/"
+      }
+   },
+   "repositories": {
+      "packagist": {
+         "type": "composer",
+         "url": "https://packagist.phpcomposer.com"
       }
    }
 }
