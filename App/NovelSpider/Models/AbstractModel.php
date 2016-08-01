@@ -2,6 +2,7 @@
 namespace Novel\NovelSpider\Models;
 
 require __DIR__.'/../../../vendor/indieteq/indieteq-php-my-sql-pdo-database-class/easyCRUD/easyCRUD.class.php';
+// require __DIR__.'/../../../vendor/indieteq/indieteq-php-my-sql-pdo-database-class/Db.class.php';
 
 
 abstract class AbstractModel extends \Crud {
