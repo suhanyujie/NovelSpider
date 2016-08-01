@@ -1,79 +1,34 @@
 <?php
 namespace Novel\NovelSpider\Models;
 
-require __DIR__.'/../../../vendor/indieteq/indieteq-php-my-sql-pdo-database-class/easyCRUD/easyCRUD.class.php';
-// require __DIR__.'/../../../vendor/indieteq/indieteq-php-my-sql-pdo-database-class/Db.class.php';
 
-use Novel\NovelSpider\Models\MyDB;
-use \DB;
-
-abstract class AbstractModel extends \Crud {
-
-    protected $table = '';
-    protected $pk	 = 'id';
-
-    protected $username = 'root';
-    protected $password = '123456';
-    protected $_timeout = 0;
-    protected $engine = 'mysql';
-    protected $charset = 'utf8';
-    protected $db;
-
-    protected $dbOri;
-    protected $sqlComment = '';
-    protected $master;
-    protected $_debugFlag=false;
-    public $variables;
-
+class ContentModel extends AbstractModel
+{
+    protected $table = 'novel_content';
+    protected $fillable = [
+        'id', 'list_id', 'title', 'content', 'worker_id','date','err_flag',
+    ];
     protected $servers = [
         'master'=>[
             'host' => '127.0.0.1',
             'database' => 'bbs_test',
         ],
     ];
+    protected $username = 'root';
+    protected $password = '123456';
+    protected $_timeout = 0;
+    protected $engine = 'mysql';
+    protected $charset = 'utf8';
+    protected $db;
+    protected $sqlComment = '';
+    protected $master;
+
     /**
      *  pdo预处理对象
      * @var object
      */
     protected $stmtQuery;
 
-    // 重写 __construct 方法
-    public function __construct($data = array()) {
-        $this->db =  new MyDB();
-        $this->variables  = $data;
-    }
-
-    /**
-     * @desc insert添加数据
-     */
-    public function insertData($array = []){
-        if(!$array)return false;
-        foreach($array as $k=>$v){
-            if(strtolower($k) === $this->pk) {
-                $this->variables[$this->pk] = $v;
-            } else {
-                $this->variables[$k] = addslashes($v);// addslashes($v)
-            }
-        }
-        $this->create();
-    }
-
-    // where查询
-    public function getAll($array = []){
-        if(!$array)return false;
-        $where = '';
-        $whereArr = [];
-        foreach($array as $k=>$v){
-            // $where .= ':'.$k
-            if(!in_array($k,$this->fillable))continue;
-            $whereArr[] =  $k.'='.':'.$k;
-        }
-        $num = isset($array['num']) ? $array['num'] : 1000;
-        $where .= implode(' AND ',$whereArr);
-        $db = $this->db;
-        $res = $db->query("SELECT * FROM ".$this->table." WHERE ".$where.' LIMIT '.$num, $array);
-        return $res;
-    }
 
     /**
      * @param $sql
@@ -109,7 +64,7 @@ abstract class AbstractModel extends \Crud {
                 return false;
             }
         }
-        $this->dbOri =& $this->$dbType;
+        $this->db =& $this->$dbType;
         return true;
     }
 
@@ -140,7 +95,7 @@ abstract class AbstractModel extends \Crud {
     public function execBind($sql,$param) {
         #链接mysql
         $this->chooseDbConn();
-        $this->stmtQuery = $this->dbOri->prepare($this->getBindParams($sql,$param));
+        $this->stmtQuery = $this->db->prepare($this->getBindParams($sql,$param));
         if (!empty($param)) {
             if (array_key_exists(0, $param)) {
                 $parametersType = true;
@@ -158,9 +113,9 @@ abstract class AbstractModel extends \Crud {
         #重试链接
         $reconnectNum = 1;
         if (empty($query)) {
-            //$error = $this->errorInfo();
+            $error = $this->errorInfo();
             if ($reconnectNum < 3 && $error[0] == 'HY000' && in_array($error[1],array(2003,2004,2006,2055,2013))) {
-                $this->dbOri = null;
+                $this->db = null;
                 $reconnectNum ++;
                 if ($reconnectNum > 1) {
                     usleep(50000);
@@ -358,12 +313,5 @@ abstract class AbstractModel extends \Crud {
     }
 
 
-    public function bind($para, $value)
-    {
-        //$this->parameters[sizeof($this->parameters)] = ":" . $para . "\x7F" . utf8_encode($value);
-        $this->parameters[sizeof($this->parameters)] = ":" . $para . "\x7F" . $value;
-    }
 
-
-
-}// end of class
+}//  end of class
