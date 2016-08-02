@@ -18,7 +18,7 @@ echo '已清空url-list中的数据了~'.PHP_EOL;
 
 $task = new Worker();
 // 开启多少个进程运行定时任务，注意多进程并发问题
-$task->count = 5;
+$task->count = 1;
 $task->onWorkerStart = function($task) {
     $keyConfig = [
         'list-key'=>'novel-list-key',
@@ -28,6 +28,9 @@ $task->onWorkerStart = function($task) {
     if($task->id === 0){
         echo "worker 0 start for list~".PHP_EOL;
         $lisrModel = new ListModel();
+
+
+
         // 获取列表
 //        $novel = new Test();
 //        $list = $novel->getList();

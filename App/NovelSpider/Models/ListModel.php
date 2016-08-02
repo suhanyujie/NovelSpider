@@ -40,8 +40,9 @@ class ListModel extends AbstractModel {
         $where .= implode(' AND ',$whereArr);
         $db = new MyDB();
         $res = $db->query("SELECT * FROM ".$this->table." WHERE ".$where.' LIMIT '.$num, $arrayNew);
+
         return $res;
-    }
+    }// end of function
 
     /**
      * 批量更新,且只支持更新1个字段!!!

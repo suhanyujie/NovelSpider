@@ -2,10 +2,8 @@
 namespace Novel\NovelSpider\Models;
 
 require __DIR__.'/../../../vendor/indieteq/indieteq-php-my-sql-pdo-database-class/easyCRUD/easyCRUD.class.php';
-// require __DIR__.'/../../../vendor/indieteq/indieteq-php-my-sql-pdo-database-class/Db.class.php';
 
 use Novel\NovelSpider\Models\MyDB;
-use \DB;
 
 abstract class AbstractModel extends \Crud {
 
@@ -24,6 +22,7 @@ abstract class AbstractModel extends \Crud {
     protected $master;
     protected $_debugFlag=false;
     public $variables;
+    protected $settings;
 
     protected $servers = [
         'master'=>[
@@ -74,6 +73,7 @@ abstract class AbstractModel extends \Crud {
         $res = $db->query("SELECT * FROM ".$this->table." WHERE ".$where.' LIMIT '.$num, $array);
         return $res;
     }
+
 
     /**
      * @param $sql

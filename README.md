@@ -15,3 +15,7 @@
 * 乱码的第一反应是,先用其他的方法替代,就不用它的方法.
 * 用其他的方法测试成功之后,我再来找乱码的原因,发现是因为在`Db.class.php`这个而文件中,有一个bind方法,使用了utf8_encode方法,将抓取到的数据,进行了编码导致,这对于英文来讲没什么关系,但对于中文却是致命的..
 * 最后,将bind稍加修改,又能再次使用上方所说的pdo类.
+
+# 安装(install)
+
+* 将第三方pdo的类做小小调整:将`/vendor/indieteq/indieteq-php-my-sql-pdo-database-class/easyCRUD/easyCRUD.class.php`下的私有属性改为protected.(private $db;->protected $db;)
