@@ -12,36 +12,35 @@ use Novel\NovelSpider\Models\ContentModel;
 
 
 $redis = new Predis\Client();
-$redis->del('url-list');
+$redis->del('novel-list-key');
 echo '已清空url-list中的数据了~'.PHP_EOL;
-
+$novel = new Test();
+$res = $novel->getListFromMysql(2);
+if(!$res){
+    echo "Mysql中也没有尚未抓取的url啦~1".PHP_EOL;
+}else{
+    $novel->pushIntoRedis($res);
+}
+$flag = $redis->llen('novel-list-key');
+var_dump($flag);
 
 $task = new Worker();
 // 开启多少个进程运行定时任务，注意多进程并发问题
-$task->count = 1;
+$task->count = 4;
 $task->onWorkerStart = function($task) {
     $keyConfig = [
         'list-key'=>'novel-list-key',
         'detail-key'=>'novel-detail-key',
     ];
+    // 重新 获取小说列表
+//    $novel = new Test();
+//    $flag = $novel->saveList();
+
     // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器
     if($task->id === 0){
         echo "worker 0 start for list~".PHP_EOL;
         $lisrModel = new ListModel();
 
-
-
-        // 获取列表
-//        $novel = new Test();
-//        $list = $novel->getList();
-//        foreach($list as $k=>$v){
-//            $data = [
-//                'novel_id'=>2,// 2 大宋王侯
-//                'url'=>$v['link'],
-//                'flag'=>0,
-//            ];
-//            $lisrModel->insertData($data);
-//        }
         // 将列表存进redis存放
         // 从redis取出数据
         //$redis = new Predis\Client();
@@ -56,26 +55,25 @@ $task->onWorkerStart = function($task) {
         });
     } else if($task->id >= 1){ // 进程1号 抓取详情
         echo "worker ".$task->id." start for detail~".PHP_EOL;
-
         // 抓取详情
         $novel = new Test();
-        $res = $novel->getDetail(2);
+        $conModel = new ContentModel();
         $i = 0;
         do{
+            $res = $novel->getDetail(2);
             if(!$res)continue;
             $errFlag = $res ? 0 : 1;
             $data = [
                 'list_id'=>2,
+                'chapter'=>$res['chapter'],
                 'title'=>$res['title'],
                 'content'=>$res['content'],
                 'worker_id'=>$task->id,
                 'date'=>date('Y-m-d H:i:s'),
                 'err_flag'=>$errFlag,
             ];
-            $conModel = new ContentModel();
             $conModel->insertData($data);
-            echo "任务".$task->id.'->'.$i."完成".PHP_EOL;
-            $res = $novel->getDetail(2);
+            echo "任务".$task->id.'->'.$i."完成~~~~~~~~~~~~".$i.PHP_EOL;
             $i++;
         }while($res);
 

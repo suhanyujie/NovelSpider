@@ -5,12 +5,14 @@ use QL\QueryList;
 use Predis\Client;
 use Novel\NovelSpider\Models\ListModel;
 
+use Tool\Helper\NumberTransfer;
+
 
 class Test{
     // 只针对 "大宋王候" 的Novel
     protected $baseUrl = 'http://www.biquwu.cc/biquge/17_17308/';
     protected $redisObj = null;
-    protected $listUrlKey = 'url-list';
+    protected $listUrlKey = 'novel-list-key';
 
     public function __construct(){
         if(!$this->redisObj){
@@ -29,7 +31,6 @@ class Test{
                                 array(
                                     "latest"=>array('li:last','html'),
                                     "list"=>array('li','html'),
-
                                 ),
                             '.article_texttitleb','utf-8');
         $data = $hj->getData(function($item){
@@ -64,11 +65,13 @@ class Test{
      */
     public function getDetail($type=2){
         //$listModel = new ListModel();
-        $url = $this->getNextUrl($type);
-        if(!$url){
+        $taskData = $this->getNextTaskData($type);
+        if(!$taskData){
             echo "没有url可以抓取详情啦~1".PHP_EOL;
             return false;
         }
+        $taskData = json_decode($taskData,true);
+        $url = $taskData['url'];
         //$url = 'http://www.biquwu.cc/biquge/17_17308/c5056844.html';// test data
         $hj = QueryList::Query($url,
             array(
@@ -79,6 +82,7 @@ class Test{
         $data = $hj->getData(function($item){
             return $item;
         });
+        $data[0]['chapter'] = $taskData['chapter'];
 
         return $data[0];
     }
@@ -103,16 +107,19 @@ class Test{
     public function pushIntoRedis($data){
         if(!$data)return false;
         $redis = $this->redisObj;
+        $flag = '';
         // 如果有数据,则不用push
         if($redis->llen($this->listUrlKey)){
+            $flag = $redis->llen($this->listUrlKey);
             return true;
         }
         $dataIdArr = [];
         // 没有则 将数据push到redis中
         foreach($data as $K=>$v){
-            $redis->lpush($this->listUrlKey,$v['url']);
+            $redis->lpush($this->listUrlKey,json_encode($v));
             $dataIdArr[] = $v['id'];
         }
+        $flag = $redis->llen($this->listUrlKey);
         // push完成之后,将list表中的flag置为1
         $listModel = new ListModel();
         $flag = $listModel->updateMultiple([
@@ -128,19 +135,19 @@ class Test{
     /**
      * 获取下一个可以抓取详情的url
      */
-    public function getNextUrl($type=2){
+    public function getNextTaskData($type=2){
         $redis = $this->redisObj;
-        $url = $redis->lpop($this->listUrlKey);
-        if(!$url){
+        $taskData = $redis->lpop($this->listUrlKey);
+        if(!$taskData){
             $res = $this->getListFromMysql($type);
             if(!$res){
                 echo "Mysql中也没有尚未抓取的url啦~1".PHP_EOL;
                 return false;
             }
             $this->pushIntoRedis($res);
+            $taskData = $redis->lpop($this->listUrlKey);
         }
-        $url = $redis->lpop($this->listUrlKey);
-        return $url;
+        return $taskData;
     }
     /**
      * 存储1篇详情
@@ -151,6 +158,28 @@ class Test{
             ''
         ];
     }// end of function
+
+    /**
+     * 保存列表页到mysql
+     */
+    public function saveList(){
+        $list = $this->getList();
+        $lisrModel = new ListModel();
+        $i = 0;
+        foreach($list as $k=>$v){
+            $data = [
+                'novel_id'=>2,// 2 大宋王侯
+                'url'=>$v['link'],
+                'title'=>$v['title'],
+                'chapter'=>NumberTransfer::checkNatInt($v['title']),
+                'flag'=>0,
+            ];
+            $flag = $lisrModel->insertData($data);
+        }
+        return $flag;
+    }
+
+
 
 
 }// end of class

@@ -13,7 +13,8 @@
 
       ],
       "psr-4": {
-         "Novel\\": "App/"
+         "Novel\\": "App/",
+         "Tool\\": "Libs/"
       }
    },
    "repositories": {

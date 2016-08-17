@@ -158,7 +158,7 @@ abstract class AbstractModel extends \Crud {
         #重试链接
         $reconnectNum = 1;
         if (empty($query)) {
-            //$error = $this->errorInfo();
+            $error = $this->errorInfo();
             if ($reconnectNum < 3 && $error[0] == 'HY000' && in_array($error[1],array(2003,2004,2006,2055,2013))) {
                 $this->dbOri = null;
                 $reconnectNum ++;
