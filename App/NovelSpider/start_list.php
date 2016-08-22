@@ -15,6 +15,8 @@ use Novel\NovelSpider\Models\ContentModel;
 $listTask = new Worker('text://0.0.0.0:3001');
 $listTask->count = 1;
 $listTask->user = 'list-process';
+$listKey = 'novel-list-key';
+$count = 0;
 $listTask->onWorkerStart = function($listTask)
 {
     $listKey = 'novel-list-key';
@@ -30,11 +32,20 @@ $listTask->onWorkerStart = function($listTask)
     $length = $redis->llen($listKey);
     echo 'process for list start~'.$length.PHP_EOL;
 };
-$listTask->onMessage = function($connection, $data)
+$listTask->onMessage = function($connection, $data) use ($listKey,$count)
 {
+    $count++;
+    $data = json_decode($data,true);
+    var_dump($data);
+    if($data['args']['contents'] === 'refresh-list'){
+        $redis = new Predis\Client();
+        $redis->del($listKey);
+        return;
+    }
     $novel = new Test();
     $sendData = $novel->getNextTaskData();
     $connection->send(json_encode($sendData));
+    echo 'request recieved '.$count.PHP_EOL;
 };
 
 // 运行worker

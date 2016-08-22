@@ -13,7 +13,7 @@ use Novel\NovelSpider\Models\ContentModel;
 
 $task = new Worker();
 // 开启多少个进程运行定时任务，注意多进程并发问题
-$task->count = 1;
+$task->count = 6;
 $task->onWorkerStart = function($task) {
     $keyConfig = [
         'list-key'=>'novel-list-key',
@@ -24,8 +24,8 @@ $task->onWorkerStart = function($task) {
 //    $flag = $novel->saveList();
 
     // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器
-    if($task->id === 0){
-        echo "worker 0 start for list~".PHP_EOL;
+    if($task->id >= 0){
+        echo "worker ".$task->id." start for detail~".PHP_EOL;
         $lisrModel = new ListModel();
         $novel = new Test();
         $conModel = new ContentModel();
@@ -33,11 +33,11 @@ $task->onWorkerStart = function($task) {
         // 开启一个内部端口，方便内部系统推送数据，Text协议格式 文本+换行符
         $taskConnetion = new AsyncTcpConnection('Text://127.0.0.1:3001');
         // 异步获得结果
-        $taskConnetion->onMessage = function($taskConnetion, $taskesult) use ($novel,$conModel,$task,$count)
+        $taskConnetion->onMessage = function($taskConnetion, $taskResult) use ($novel,$conModel,$task,$count)
         {
             // 结果
             //var_dump($taskesult);
-            $res = $novel->getDetail($taskesult);
+            $res = $novel->getDetail($taskResult);
             if(!$res)$res=0;
             $errFlag = $res ? 0 : 1;
             $data = [
@@ -51,10 +51,16 @@ $task->onWorkerStart = function($task) {
             ];
             $conModel->insertData($data);
             echo "任务".$task->id.'->'.$count."完成~~~~~~~~~~~~".$count.PHP_EOL;
+            //$taskConnetion->curTaskResStatus = $taskResult ? 1 : 0;
+            $count++;
         };
-        $taskData = $novel->getTaskDataFromProcess($taskConnetion);
-        while($taskData){
-            $taskData = $novel->getTaskDataFromProcess($taskConnetion);
+        $novel->requestTaskDataFromProcess($taskConnetion);
+        $i = 1;
+        while(true){
+            echo $i.PHP_EOL;
+            if($i > 210)break;// 防止无法退出while循环的情况
+            $novel->requestTaskDataFromProcess($taskConnetion);
+            $i++;
         }
         // 获得结果后记得关闭异步链接
         $taskConnetion->close();
@@ -71,33 +77,7 @@ $task->onWorkerStart = function($task) {
             echo "task run\n";
             // 获取最新的最后一个url,查看是否与mysql中的最新的url,是否一致,不一致,则把最新的url等数据加入mysql
         });
-    } else if($task->id >= 1){ // 进程1号 抓取详情
-        echo "worker ".$task->id." start for detail~".PHP_EOL;
-        // 抓取详情
-        $novel = new Test();
-        $conModel = new ContentModel();
-        $i = 0;
-        do{
-            $res = $novel->getDetail(2);
-            if(!$res)continue;
-            $errFlag = $res ? 0 : 1;
-            $data = [
-                'list_id'=>2,
-                'chapter'=>$res['chapter'],
-                'title'=>$res['title'],
-                'content'=>$res['content'],
-                'worker_id'=>$task->id,
-                'date'=>date('Y-m-d H:i:s'),
-                'err_flag'=>$errFlag,
-            ];
-            $conModel->insertData($data);
-            echo "任务".$task->id.'->'.$i."完成~~~~~~~~~~~~".$i.PHP_EOL;
-            $i++;
-        }while($res);
-
-        echo "detail finished~".PHP_EOL;
-
-    }// end of if
+    }// end of onstart function
 
 
 };
