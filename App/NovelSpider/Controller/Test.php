@@ -63,14 +63,15 @@ class Test{
     /**
      * 通过一个url抓取详情
      */
-    public function getDetail($type=2){
-        //$listModel = new ListModel();
-        $taskData = $this->getNextTaskData($type);
+    public function getDetail($taskData,$type=2){
         if(!$taskData){
             echo "没有url可以抓取详情啦~1".PHP_EOL;
             return false;
         }
+        // 不知为何 需要json_decode2次才能解析出json !!!!!!!!
         $taskData = json_decode($taskData,true);
+        $taskData = json_decode($taskData,true);
+        var_dump($taskData);
         $url = $taskData['url'];
         //$url = 'http://www.biquwu.cc/biquge/17_17308/c5056844.html';// test data
         $hj = QueryList::Query($url,
@@ -85,6 +86,21 @@ class Test{
         $data[0]['chapter'] = $taskData['chapter'];
 
         return $data[0];
+    }
+    /**
+     * 从另一个worker进程中获取taskData
+     */
+    public function getTaskDataFromProcess($task_connection){
+
+        // 任务及参数数据
+        $task_data = array(
+            'function' => 'send_mail',
+            'args'       => array('from'=>'xxx', 'to'=>'xxx', 'contents'=>'xxx'),
+        );
+        $task_connection->send(json_encode($task_data));
+        // 执行异步链接
+        $task_connection->connect();
+        //Worker::runAll();
     }
 
     /**
