@@ -75,10 +75,10 @@ class Test{
         //$url = 'http://www.biquwu.cc/biquge/17_17308/c5056844.html';// test data
         $hj = QueryList::Query($url,
             array(
-                "title"=>array('.book_content_text>h1','html'),
-                "content"=>array('#book_text','html'),
+                "title"=>array('.bookname>h1','html'),
+                "content"=>array('#content','html'),
             ),
-            '#mains','UTF-8');
+            '#wrapper','UTF-8');
         $data = $hj->getData(function($item){
             return $item;
         });
@@ -96,7 +96,8 @@ class Test{
             'args'       => array('from'=>'detail task', 'to'=>'list task', 'contents'=>'get-detail'),//refresh-list
         );
         $task_data = $data ? $data : $task_data;
-        var_dump($data['count']);
+        //var_dump($data);
+
         $taskConnection->send(json_encode($task_data));
         // 执行异步链接
         $taskConnection->connect();

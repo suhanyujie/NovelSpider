@@ -13,7 +13,7 @@ use Novel\NovelSpider\Models\ContentModel;
 
 $task = new Worker();
 // 开启多少个进程运行定时任务，注意多进程并发问题
-$task->count = 6;
+$task->count = 2;
 $task->onWorkerStart = function($task) {
     $keyConfig = [
         'list-key'=>'novel-list-key',
@@ -35,10 +35,20 @@ $task->onWorkerStart = function($task) {
         // 异步获得结果
         $taskConnetion->onMessage = function($taskConnetion, $taskResult) use ($novel,$conModel,$task,$count)
         {
+            if(!$taskResult){
+                throw new Exception("there is no url data~ error");
+            }
             // 结果
-            //var_dump($taskesult);
             $res = $novel->getDetail($taskResult);
-            if(!$res)$res=0;
+            var_dump( $taskResult,$res );
+            if(!$res){
+                $res=0;
+                throw new Exception("article detail error");
+            }
+            if(!isset($res['title'])){
+                $res=0;
+                throw new Exception("title is empty! error");
+            }
             $errFlag = $res ? 0 : 1;
             $data = [
                 'list_id'=>2,
@@ -51,15 +61,15 @@ $task->onWorkerStart = function($task) {
             ];
             $conModel->insertData($data);
             echo "任务".$task->id.'->'.$count."完成~~~~~~~~~~~~".$count.PHP_EOL;
-            //$taskConnetion->curTaskResStatus = $taskResult ? 1 : 0;
+            $taskConnetion->curTaskResStatus = $taskResult ? 1 : 0;
             $count++;
         };
-        $novel->requestTaskDataFromProcess($taskConnetion);
+        $novel->requestTaskDataFromProcess($taskConnetion,[]);
         $i = 1;
         while(true){
             echo $i.PHP_EOL;
-            if($i > 210)break;// 防止无法退出while循环的情况
-            $novel->requestTaskDataFromProcess($taskConnetion);
+            if($i > 2) break;// 防止无法退出while循环的情况
+            $novel->requestTaskDataFromProcess($taskConnetion,[]);
             $i++;
         }
         // 获得结果后记得关闭异步链接
