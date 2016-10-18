@@ -99,7 +99,7 @@ class Test{
         //var_dump($data);
 
         $taskConnection->send(json_encode($task_data));
-        // 执行异步链接
+        // 执行异步链接 !!! important
         $taskConnection->connect();
         return true;
     }

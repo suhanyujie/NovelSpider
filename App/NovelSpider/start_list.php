@@ -35,7 +35,9 @@ $listTask->onWorkerStart = function($listTask)
     $time_interval = 3600*0.5;
     Timer::add($time_interval, function(){
         echo "task run\n";
-        // 获取最新的最后一个url,查看是否与mysql中的最新的url,是否一致,不一致,则把最新的url等数据加入mysql
+        // 如果该列表已经爬取过,那么只需爬取这个列表页的最后几条最新数据,放入redis队列中
+        $hasSpider = true;
+
     });
 };
 $listTask->onMessage = function($connection, $data) use ($listKey,$count)

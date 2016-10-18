@@ -30,17 +30,20 @@ $task->onWorkerStart = function($task) {
         $novel = new Test();
         $conModel = new ContentModel();
         $count = 0;
+        $runFlag = true;
         // 开启一个内部端口，方便内部系统推送数据，Text协议格式 文本+换行符
         $taskConnetion = new AsyncTcpConnection('Text://127.0.0.1:3001');
         // 异步获得结果
-        $taskConnetion->onMessage = function($taskConnetion, $taskResult) use ($novel,$conModel,$task,$count)
+        $taskConnetion->onMessage = function($taskConnetion, $taskResult) use ($novel,$conModel,$task,$count,$runFlag)
         {
             if(!$taskResult){
+                $runFlag = false;
+                return;
                 throw new Exception("there is no url data~ error");
             }
             // 结果
             $res = $novel->getDetail($taskResult);
-            var_dump( $taskResult,$res );
+            //var_dump( $res );
             if(!$res){
                 $res=0;
                 throw new Exception("article detail error");
@@ -61,20 +64,19 @@ $task->onWorkerStart = function($task) {
             ];
             $conModel->insertData($data);
             echo "任务".$task->id.'->'.$count."完成~~~~~~~~~~~~".$count.PHP_EOL;
-            $taskConnetion->curTaskResStatus = $taskResult ? 1 : 0;
             $count++;
+            $taskConnetion->curTaskResStatus = $taskResult ? 1 : 0;
         };
         $novel->requestTaskDataFromProcess($taskConnetion,[]);
         $i = 1;
         while(true){
-            echo $i.PHP_EOL;
-            if($i > 2) break;// 防止无法退出while循环的情况
+            //echo $i.PHP_EOL;
+            if($i > 5 || !$runFlag) break;// 防止无法退出while循环的情况
             $novel->requestTaskDataFromProcess($taskConnetion,[]);
             $i++;
         }
         // 获得结果后记得关闭异步链接
         $taskConnetion->close();
-
         // 将列表存进redis存放
         // 从redis取出数据
         //$redis = new Predis\Client();
