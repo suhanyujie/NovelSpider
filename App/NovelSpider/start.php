@@ -34,14 +34,14 @@ $task->onWorkerStart = function($task) {
         // 开启一个内部端口，方便内部系统推送数据，Text协议格式 文本+换行符
         $taskConnetion = new AsyncTcpConnection('Text://127.0.0.1:3001');
         // 异步获得结果
-        $taskConnetion->onMessage = function($taskConnetion, $taskResult) use ($novel,$conModel,$task,$count,$runFlag)
+        $taskConnetion->onMessage = function($taskConnetion, $taskResult) use ($novel,$conModel,$task,&$count,$runFlag)
         {
+            // url已经发放完毕了,没有需要抓取的url了
             if(!$taskResult){
                 $runFlag = false;
                 return;
-                throw new Exception("there is no url data~ error");
             }
-            // 结果
+            // 获取详情页的结果
             $res = $novel->getDetail($taskResult);
             //var_dump( $res );
             if(!$res){
@@ -77,12 +77,6 @@ $task->onWorkerStart = function($task) {
         }
         // 获得结果后记得关闭异步链接
         $taskConnetion->close();
-        // 将列表存进redis存放
-        // 从redis取出数据
-        //$redis = new Predis\Client();
-        //$res = $redis->hgetall($keyConfig['list-key']);
-        //$res = $novel->getListFromRedis($keyConfig['list-key']);
-        // 读取redis队列,去爬取详情
         // 定时请求,保证获取最新
         $time_interval = 3600*1.5;
         Timer::add($time_interval, function(){
