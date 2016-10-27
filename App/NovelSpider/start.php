@@ -26,10 +26,11 @@ $task->onWorkerStart = function($task) {
     // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器
     if($task->id >= 0){
         echo "worker ".$task->id." start for detail~".PHP_EOL;
-        $lisrModel = new ListModel();
+
+        $listModel = new ListModel();
         $novel = new Test();
         $conModel = new ContentModel();
-        $count = 0;
+        /*$count = 0;
         $runFlag = true;
         // 开启一个内部端口，方便内部系统推送数据，Text协议格式 文本+换行符
         $taskConnetion = new AsyncTcpConnection('Text://127.0.0.1:3001');
@@ -76,11 +77,15 @@ $task->onWorkerStart = function($task) {
             $i++;
         }
         // 获得结果后记得关闭异步链接
-        $taskConnetion->close();
+        $taskConnetion->close();*/
         // 定时请求,保证获取最新
-        $time_interval = 3600*1.5;
-        Timer::add($time_interval, function(){
+        $time_interval = 2;// 3600*1.5
+        $timerId = Timer::add($time_interval, function(){
             echo "task run\n";
+            $novel = new Test();
+            // 去列表库中最新的一个url,和此次抓取的进行对比
+            // 如果不是最新的,那么就抓取这一章后面的更新的章节
+            $novel->getLatestChapter();
             // 获取最新的最后一个url,查看是否与mysql中的最新的url,是否一致,不一致,则把最新的url等数据加入mysql
         });
     }// end of onstart function

@@ -36,10 +36,19 @@ class ListModel extends AbstractModel {
             $whereArr[] =  $k.'='.':'.$k;
             $arrayNew[$k] = $v;
         }
+        $orderSql = '';
+        switch( $array['order'] ){
+            case 1:
+                $orderSql = ' ORDER BY id DESC ';
+        }
         $num = isset($array['num']) ? $array['num'] : 1000;
         $where .= implode(' AND ',$whereArr);
+        if($whereArr){
+            $where = ' AND '.$where;
+        }
         $db = new MyDB();
-        $res = $db->query("SELECT * FROM ".$this->table." WHERE ".$where.' LIMIT '.$num, $arrayNew);
+        $sql = "SELECT * FROM ".$this->table." WHERE 1 ".$where. $orderSql.' LIMIT '.$num;
+        $res = $db->query("SELECT * FROM ".$this->table." WHERE 1 ".$where. $orderSql.' LIMIT '.$num, $arrayNew);
 
         return $res;
     }// end of function

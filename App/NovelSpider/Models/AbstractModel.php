@@ -61,18 +61,29 @@ abstract class AbstractModel extends \Crud {
     public function getAll($array = []){
         if(!$array)return false;
         $where = '';
-        $whereArr = [];
+        $whereArr = $arrayNew = [];
         foreach($array as $k=>$v){
             // $where .= ':'.$k
             if(!in_array($k,$this->fillable))continue;
             $whereArr[] =  $k.'='.':'.$k;
+            $arrayNew[$k] = $v;
+        }
+        $orderSql = '';
+        switch( $array['order'] ){
+            case 1:
+                $orderSql = ' ORDER BY id DESC ';
         }
         $num = isset($array['num']) ? $array['num'] : 1000;
         $where .= implode(' AND ',$whereArr);
-        $db = $this->db;
-        $res = $db->query("SELECT * FROM ".$this->table." WHERE ".$where.' LIMIT '.$num, $array);
+        if($whereArr){
+            $where = ' AND '.$where;
+        }
+        $db = new MyDB();
+        $sql = "SELECT * FROM ".$this->table." WHERE 1 ".$where. $orderSql.' LIMIT '.$num;
+        $res = $db->query("SELECT * FROM ".$this->table." WHERE 1 ".$where. $orderSql.' LIMIT '.$num, $arrayNew);
+
         return $res;
-    }
+    }// end of function
 
 
     /**

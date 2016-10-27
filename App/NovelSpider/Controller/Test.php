@@ -1,6 +1,7 @@
 <?php
 namespace Novel\NovelSpider\Controller;
 
+use Novel\NovelSpider\Models\ContentModel;
 use QL\QueryList;
 use Predis\Client;
 use Novel\NovelSpider\Models\ListModel;
@@ -146,7 +147,6 @@ class Test{
             ],
         ]);
 
-
         return true;
     }
     /**
@@ -175,6 +175,32 @@ class Test{
             ''
         ];
     }// end of function
+    /**
+     * 获取历史抓取的最新的一章
+     */
+    public function getLatestChapter(){
+        $listModel = new ListModel();
+        $res = $listModel->getAll([
+            'order'=>1,
+            'num'=>1,
+        ]);
+        $res = $res[0];
+        $res = $this->checkHasCrawling($res['chapter']);
+        var_dump($res);
+
+    }
+    /**
+     * 检查这个url/id是否被爬取过
+     */
+    public function checkHasCrawling($chapter){
+        $listModel = new ContentModel();
+        $res = $listModel->getAll([
+            'chapter'=>$chapter,
+            'order'=>1,
+            'num'=>1,
+        ]);
+        return $res ? true : false;
+    }
 
     /**
      * 保存列表页到mysql
