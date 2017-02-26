@@ -2,4 +2,4 @@
 /vendor
 /shadowsocks-php
 /other
-/workerman
+/.DS_Store
