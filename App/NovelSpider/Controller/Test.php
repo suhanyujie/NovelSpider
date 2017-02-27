@@ -6,7 +6,7 @@ use QL\QueryList;
 use Predis\Client;
 use Novel\NovelSpider\Models\ListModel;
 
-use Tool\Helper\NumberTransfer;
+use Libs\Helper\NumberTransfer;
 
 
 class Test{

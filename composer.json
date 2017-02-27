@@ -14,7 +14,8 @@
       ],
       "psr-4": {
          "Novel\\": "App/",
-         "Tool\\": "Libs/"
+         "Libs\\": "Libs/",
+         "Config\\": "Config/"
       }
    },
    "repositories": {
