@@ -19,3 +19,11 @@
 # 安装(install)
 
 * 将第三方pdo的类做小小调整:将`/vendor/indieteq/indieteq-php-my-sql-pdo-database-class/easyCRUD/easyCRUD.class.php`下的私有属性改为protected.(private $db;->protected $db;)
+
+
+## 关于爬取小说的一些思路
+### 列表爬虫思路：
+* 一个单独的进程，会有定时器，定时循环所有小说看他们是否产生最新连载。
+* 一旦有发现一个，则将其尚未爬取的章节加入到“爬取详情页”的任务队列
+
+
