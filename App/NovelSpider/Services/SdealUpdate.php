@@ -10,14 +10,19 @@
 
 namespace Novel\NovelSpider\Services;
 
+use Libs\Db\Db;
+use QL\QueryList;
 
 class SdealUpdate
 {
     protected $novelId = 0;
 
+    protected $listUrl = '';
+
     public function __construct( $novelId ){
         $this->novelId = $novelId;
-
+        // 获取url
+        $this->getListUrl();
 
     }
 
@@ -29,7 +34,22 @@ class SdealUpdate
      * @return Array
      */
     public function getInternetUpdate($novelId) {
+//        QueryList::
+    }
 
+
+    /**
+     * @desc: 获取该小说的主页
+     * @author:Samuel Su(suhanyu)
+     * @date:17/4/23
+     * @param String $param
+     * @return string
+     */
+    public function getListUrl() {
+        $dbObj = Db::instance('db1');
+        $url = $dbObj->select('list_url')->from('novel_main')->where('id='.$this->novelId)->limit(1)->query();
+        $this->listUrl = $url[0]['list_url'];
+        return $url[0]['list_url'];
     }
 
 

@@ -87,6 +87,10 @@ $task->onWorkerStart = function($task) {
         }
         // 获得结果后记得关闭异步链接
         $taskConnetion->close();*/
+
+        $dealUpdateService = new SdealUpdate( 1 );
+        $dealUpdateService->getInternetUpdate();
+
         // 定时请求,保证获取最新
         $time_interval = 2;// 3600*1.5
         $timerId = Timer::add($time_interval, function(){
@@ -99,9 +103,11 @@ $task->onWorkerStart = function($task) {
             // 获取所有小说
             $dbObj = Db::instance('db1');
             $allNovel = $dbObj->select('*')->from('novel_main')->where('novel_status=0')->orderByDESC(['id'])->limit(2)->query();
-            foreach($allNovel as $k=>$row){
-                $dealUpdateService = new SdealUpdate( $row['id'] );
-                $dealUpdateService->getInternetUpdate();
+            if($allNovel){
+                foreach($allNovel as $k=>$row){
+                    $dealUpdateService = new SdealUpdate( $row['id'] );
+                    $dealUpdateService->getListUrl();
+                }
             }
         });
     }// end of onstart function
