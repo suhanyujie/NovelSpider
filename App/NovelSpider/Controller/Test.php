@@ -185,9 +185,8 @@ class Test{
             'num'=>1,
         ]);
         $res = $res[0];
+        $ourNewestChapter = $res['chapter'];
         $res = $this->checkHasCrawling($res['chapter']);
-        var_dump($res);
-
     }
     /**
      * 检查这个url/id是否被爬取过

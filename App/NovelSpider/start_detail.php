@@ -10,12 +10,13 @@ use Novel\NovelSpider\Controller\Test;
 use Predis\Client;
 use Novel\NovelSpider\Models\ListModel;
 use Novel\NovelSpider\Models\ContentModel;
+use Novel\NovelSpider\Services\SdealUpdate;
 
 use Libs\Db\Db;
 
 $task = new Worker();
 // 开启多少个进程运行定时任务，注意多进程并发问题
-$task->count = 2;
+$task->count = 1;
 $task->onWorkerStart = function($task) {
     $keyConfig = [
         'list-key'=>'novel-list-key',
@@ -24,7 +25,7 @@ $task->onWorkerStart = function($task) {
 
     $dbObj = Db::instance('db1');
 
-    var_dump($dbObj->select('*')->from('novel_list')->limit(10)->query());
+    var_dump($dbObj->select('*')->from('novel_list')->orderByDESC(['id'])->limit(2)->query());
 
 
     // 重新 获取小说列表
@@ -93,8 +94,15 @@ $task->onWorkerStart = function($task) {
             $novel = new Test();
             // 去列表库中最新的一个url,和此次抓取的进行对比
             // 如果不是最新的,那么就抓取这一章后面的更新的章节
-            $novel->getLatestChapter();
+            // $novel->getLatestChapter();
             // 获取最新的最后一个url,查看是否与mysql中的最新的url,是否一致,不一致,则把最新的url等数据加入mysql
+            // 获取所有小说
+            $dbObj = Db::instance('db1');
+            $allNovel = $dbObj->select('*')->from('novel_main')->where('novel_status=0')->orderByDESC(['id'])->limit(2)->query();
+            foreach($allNovel as $k=>$row){
+                $dealUpdateService = new SdealUpdate( $row['id'] );
+                $dealUpdateService->getInternetUpdate();
+            }
         });
     }// end of onstart function
 
