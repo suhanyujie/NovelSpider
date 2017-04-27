@@ -14,7 +14,7 @@ use QL\QueryList;
 
 class ListSpider
 {
-    public $mainUrl = 'http://www.qu.la/book/3820/';
+    public $mainUrl = 'http://www.xxbiquge.com/3_3482/';
     public $mainSelector = '#list';
 
     /**
@@ -31,24 +31,29 @@ class ListSpider
     // 获取列表
     public function getList(){
         $url = $this->mainUrl;
-
-        $hj = QueryList::Query($url,
-            array(
-                "latest"=>array('li:last','html'),
-                "list"=>array('li','html'),
-            ),
-            '.article_texttitleb','utf-8');
-        $data = $hj->getData(function($item){
-            $item['list'] = QueryList::Query($item['list'],array(
-                'link'=>array('a', 'href','',function($str){
-                    return $this->baseUrl.$str;
-                }),
-                'title'=>array('a', 'text'),
-            ))->data;
-            return $item;
+        $rules = [
+            'list'=>[
+                'dd',
+                'html',
+            ],
+        ];
+        $hj = QueryList::Query($url, $rules, $this->mainSelector,'utf-8');
+        $data = $hj->getData(function($aEle){
+            $res = [];
+            $res['oneChapterInfo'] = QueryList::query($aEle['list'],
+                [
+                    'linkUrl'=>[
+                        'a','href',
+                    ],
+                    'title'=>[
+                        'a','text',
+                    ]
+                ]
+            )->data;
+            return $res;
         });
 
-        return $data[0]['list'];
+        return $data['list'];
     }// end of function
 
 

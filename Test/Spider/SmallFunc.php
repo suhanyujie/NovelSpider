@@ -7,17 +7,20 @@
  * Time: 上午8:45
  */
 
+//include "/www/www/vendor/autoload.php";
 
 namespace Test\Spider;
 
 use PHPUnit\Framework\TestCase;
+use Novel\NovelSpider\Controller\ListSpider;
 
 class SmallFunc extends TestCase
 {
 
     public function testListSpider()
     {
-
+        $service = new ListSpider();
+        $service->getList();
     }
 
 
