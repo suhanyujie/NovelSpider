@@ -40,7 +40,7 @@ class ListSpider
         $hj = QueryList::Query($url, $rules, $this->mainSelector,'utf-8');
         $data = $hj->getData(function($aEle){
             $res = [];
-            $res['oneChapterInfo'] = QueryList::query($aEle['list'],
+            $res['allChaper'] = QueryList::query($aEle['list'],
                 [
                     'linkUrl'=>[
                         'a','href',
@@ -53,7 +53,7 @@ class ListSpider
             return $res;
         });
 
-        return $data['list'];
+        return $data[0]['allChaper'];
     }// end of function
 
 
