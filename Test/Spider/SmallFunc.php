@@ -7,20 +7,22 @@
  * Time: 上午8:45
  */
 
-//include "/www/www/vendor/autoload.php";
 
 namespace Test\Spider;
 
 use PHPUnit\Framework\TestCase;
 use Novel\NovelSpider\Controller\ListSpider;
 
+include("/www/www/vendor/autoload.php");
+
 class SmallFunc extends TestCase
 {
-
     public function testListSpider()
     {
         $service = new ListSpider();
-        $service->getList();
+        $res = $service->getList();
+        // 索引数组,并且单元个数超过10
+        $this->assertArrayHasKey(10, $res);
     }
 
 
