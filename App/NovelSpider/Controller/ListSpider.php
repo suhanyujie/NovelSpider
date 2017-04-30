@@ -15,6 +15,7 @@ use QL\QueryList;
 class ListSpider
 {
     public $mainUrl = 'http://www.xxbiquge.com/3_3482/';
+    protected $baseUrl = 'http://www.xxbiquge.com/';
     public $mainSelector = '#list';
 
     /**
@@ -42,7 +43,7 @@ class ListSpider
             $res = [];
             $res['allChaper'] = QueryList::query($aEle['list'],
                 [
-                    'linkUrl'=>[
+                    'link'=>[
                         'a','href',
                     ],
                     'title'=>[

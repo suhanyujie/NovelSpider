@@ -206,7 +206,7 @@ class Test{
      */
     public function saveList(){
         $list = $this->getList();
-        $lisrModel = new ListModel();
+        $listModel = new ListModel();
         $i = 0;
         foreach($list as $k=>$v){
             $data = [
@@ -216,7 +216,7 @@ class Test{
                 'chapter'=>NumberTransfer::checkNatInt($v['title']),
                 'flag'=>0,
             ];
-            $flag = $lisrModel->insertData($data);
+            $flag = $listModel->insertData($data);
         }
         return $flag;
     }
