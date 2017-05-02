@@ -17,6 +17,8 @@ class ListSpider
     public $mainUrl = 'http://www.xxbiquge.com/3_3482/';
     protected $baseUrl = 'http://www.xxbiquge.com/';
     public $mainSelector = '#list';
+    protected $novelRow = [];
+
 
     /**
      * @desc:构造函数
@@ -25,9 +27,26 @@ class ListSpider
      * @param String $param
      * @return void
      */
-    public function __construct() {
-
+    public function __construct($novelRow) {
+        $this->novelRow = $novelRow;
+        $this->mainUrl = $novelRow['list_url'];
+        $this->baseUrl = $novelRow['base_url'];
     }
+
+    /**
+     * @desc: 获取并存储下列表
+     * @author:Samuel Su(suhanyu)
+     * @date:17/5/2
+     * @param String $param
+     * @return void
+     */
+    public function runList() {
+        $dataArr = $this->getList();
+        $storeObj = new ListStore();
+
+        $storeObj->storeAll( $this->novelRow['id'], $storeObj );
+    }
+
 
     // 获取列表
     public function getList(){

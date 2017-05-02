@@ -16,19 +16,20 @@ class ListStore
 {
 
     /**
-     * @desc:
+     * @desc: 储存列表的一个数据
      * @author:Samuel Su(suhanyu)
      * @date:17/4/30
+     * @param int $id
      * @param array $paramArr
-     * @return Array
+     * @return void
      */
-    public function storeAll($paramArr) {
+    public function storeAll($id, $paramArr) {
         var_dump(array_slice($paramArr,0,3));exit('下午5:33');
         $listModel = new ListModel();
         if(!$paramArr)return false;
         foreach($paramArr as $k=>$row){
             $data = [
-                'novel_id'=>1,// 2 大宋王侯 1俗人回档
+                'novel_id'=>$id,// 2 大宋王侯 1俗人回档
                 'url'=>$row['link'],
                 'title'=>$row['title'],
                 'chapter'=>NumberTransfer::checkNatInt($row['title']),
