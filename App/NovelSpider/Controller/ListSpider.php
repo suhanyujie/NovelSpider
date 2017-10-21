@@ -25,6 +25,10 @@ class ListSpider
      * @author:Samuel Su(suhanyu)
      * @date:17/4/26
      * @param array $novelRow
+     *      $novelRow = [
+     *          'list_url'=>列表url （必填）
+     *          'base_url'=>根路径 （必填）
+     *      ];
      * @return void
      */
     public function __construct($novelRow) {
@@ -46,30 +50,34 @@ class ListSpider
 
         $storeObj->storeAll( $this->novelRow['id'], $storeObj );
     }
-
-
-    // 获取列表
+    
+    
+    /**
+     * @desc 获取列表
+     * @return mixed
+     */
     public function getList(){
         $url = $this->mainUrl;
         $rules = [
-            'list'=>[
+            'list' => [
                 'dd',
                 'html',
             ],
         ];
         $hj = QueryList::Query($url, $rules, $this->mainSelector,'utf-8');
-        $data = $hj->getData(function($aEle){
+        $data = $hj->getData(function ($aEle) {
             $res = [];
-            $res['allChaper'] = QueryList::query($aEle['list'],
-                [
-                    'link'=>[
-                        'a','href',
+            $res['allChaper'] = QueryList::query($aEle['list'], [
+                    'link'  => [
+                        'a',
+                        'href',
                     ],
-                    'title'=>[
-                        'a','text',
-                    ]
-                ]
-            )->data;
+                    'title' => [
+                        'a',
+                        'text',
+                    ],
+                ])->data;
+        
             return $res;
         });
 

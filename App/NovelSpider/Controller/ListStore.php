@@ -24,7 +24,7 @@ class ListStore
      * @return void
      */
     public function storeAll($id, $paramArr) {
-        var_dump(array_slice($paramArr,0,3));exit('下午5:33');
+        var_dump(array_slice($paramArr,0,5));exit('下午5:33');
         $listModel = new ListModel();
         if(!$paramArr)return false;
         foreach($paramArr as $k=>$row){
@@ -37,6 +37,7 @@ class ListStore
             ];
             $listModel->insertData($data);
         }
+        echo '完成的章数为：'.count($paramArr);
     }
 
 
