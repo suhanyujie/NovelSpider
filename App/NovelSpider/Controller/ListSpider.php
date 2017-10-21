@@ -24,7 +24,7 @@ class ListSpider
      * @desc:构造函数
      * @author:Samuel Su(suhanyu)
      * @date:17/4/26
-     * @param String $param
+     * @param array $novelRow
      * @return void
      */
     public function __construct($novelRow) {
@@ -37,7 +37,7 @@ class ListSpider
      * @desc: 获取并存储下列表
      * @author:Samuel Su(suhanyu)
      * @date:17/5/2
-     * @param String $param
+     * @param void
      * @return void
      */
     public function runList() {
@@ -82,7 +82,7 @@ class ListSpider
      * @desc: 设置 小说主页
      * @author:Samuel Su(suhanyu)
      * @date:17/4/26
-     * @param String $param
+     * @param String $url
      * @return void
      */
     public function setMainUrl($url) {
@@ -93,7 +93,7 @@ class ListSpider
      * @desc: 设置列表所在主区域的选择器
      * @author:Samuel Su(suhanyu)
      * @date:17/4/26
-     * @param String $param
+     * @param String $selector
      * @return void
      */
     public function setMainAreaSelector($selector) {
