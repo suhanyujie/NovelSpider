@@ -1,4 +1,11 @@
 <?php
+/**
+ * start_list.php文件的作用：
+ * 1.启动一个进程L，获取一个小说的列表，将列表作为任务，放到redis队列中
+ * 2.当"获取详情"的进程C，与L进行通信，获取一个任务(一个详情的url)，L就把队列中的一个任务发放给C。
+ * 3.C获取到了任务后，就执行自己的逻辑。
+ *
+ */
 require __DIR__."/../../vendor/autoload.php";
 
 use \Workerman\Worker;
