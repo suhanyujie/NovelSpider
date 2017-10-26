@@ -11,15 +11,22 @@ $fictionList = [
         'base_url'      => 'http://www.xxbiquge.com',
     ],
 ];
-if ($fictionList) {
-    foreach ( $fictionList as $k => $item ) {
-        $service = new ListSpider($item);
-        $listArr = $service->getList();
-        $storeObj = new ListStore();
-        $storeObj->storeAll($k, $listArr);
-        break;
-    }
-}
+
+
+// 采集列表
+//if ($fictionList) {
+//    foreach ( $fictionList as $k => $item ) {
+//        $service = new ListSpider($item);
+//        $listArr = $service->getList();
+//        $storeObj = new ListStore();
+//        $storeObj->storeAll($k, $listArr);
+//        break;
+//    }
+//}
+
+// 采集详情内容
+//$contentSpider = new \Novel\NovelSpider\Controller\ContentSpider();
+//$contentSpider->getContent();
 
 
 
