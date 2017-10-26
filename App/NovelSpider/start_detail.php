@@ -92,7 +92,7 @@ $task->onWorkerStart = function($task) {
         $dealUpdateService->getInternetUpdate();
 
         // 定时请求,保证获取最新
-        $time_interval = 2;// 3600*1.5
+        $time_interval = 2;// 3600*1.5  秒数
         $timerId = Timer::add($time_interval, function(){
             echo "task run\n";
             $novel = new Test();
