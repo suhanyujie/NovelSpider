@@ -6,7 +6,7 @@
  * Time: 下午11:01
  */
 
-namespace Tool\Helper;
+namespace Libs\Helper;
 
 
 class FileFunction
