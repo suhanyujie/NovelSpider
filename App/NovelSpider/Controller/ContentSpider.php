@@ -17,9 +17,14 @@ class ContentSpider
      * @param $url
      * @return string
      */
-    public function getContent($url)
+    public function getContent($url='')
     {
+        // $url = 'http://www.xxbiquge.com/3_3482/5549506.html';
+        $res = QueryList::query($url, [
+            'title'=>['.bookname h1', 'text'],
+            'content'=>['#content', 'html'],
+        ])->getData();
         
-        return '';
+        return $res;
     }
 }
