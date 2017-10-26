@@ -87,7 +87,7 @@ class ListSpider
 
 
     /**
-     * @desc: 设置 小说主页
+     * @desc: 设置 小说主页的url
      * @author:Samuel Su(suhanyu)
      * @date:17/4/26
      * @param String $url
