@@ -16,7 +16,7 @@ class ListStore
 {
 
     /**
-     * @desc: 储存列表的一个数据
+     * @desc: 储存列表的章节数据
      * @author:Samuel Su(suhanyu)
      * @date:17/4/30
      * @param int $id
@@ -24,7 +24,7 @@ class ListStore
      * @return void
      */
     public function storeAll($id, $paramArr) {
-        var_dump(array_slice($paramArr,0,5));exit('下午5:33');
+        // var_dump(array_slice($paramArr,0,5));exit('下午5:33');
         $listModel = new ListModel();
         if(!$paramArr)return false;
         foreach($paramArr as $k=>$row){
