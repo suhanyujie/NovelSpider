@@ -28,6 +28,9 @@ class NormalLog
         $fileName = $this->getFileName();
         // 创建文件夹
         FileFunction::mkDirs(dirname($fileName));
+        // 创建文件
+        touch($fileName);
+        chmod($fileName,0777);
     }
     
     /**
