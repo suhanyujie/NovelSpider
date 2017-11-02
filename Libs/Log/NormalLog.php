@@ -26,7 +26,7 @@ class NormalLog
      * @desc 日志记录器
      * @var string
      */
-    protected $log = '';
+    protected $logger = '';
     
     /**
      * @desc 构造函数
@@ -50,8 +50,8 @@ class NormalLog
         chmod($fileName, 0777);
         $this->logFile = $fileName;
         
-        $this->log = new Logger($businessName);
-        $this->log->pushHandler(new StreamHandler($this->logFile), Logger::INFO);
+        $this->logger = new Logger($businessName);
+        $this->logger->pushHandler(new StreamHandler($this->logFile), Logger::INFO);
     }
     
     /**
@@ -61,7 +61,7 @@ class NormalLog
      */
     public function info($content = '')
     {
-        $this->log->info($content);
+        $this->logger->info($content);
     }
     
     /**
