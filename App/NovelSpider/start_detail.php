@@ -35,7 +35,7 @@ $task->onWorkerStart = function($task) {
     // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器
     if($task->id >= 0){
         echo "worker ".$task->id." start for detail~".PHP_EOL;
-
+        
         $listModel = new ListModel();
         $novel = new Test();
         $conModel = new ContentModel();
@@ -87,7 +87,8 @@ $task->onWorkerStart = function($task) {
         }
         // 获得结果后记得关闭异步链接
         $taskConnetion->close();*/
-
+        
+        // 自动更新最新连载
         $dealUpdateService = new SdealUpdate( 1 );
         $dealUpdateService->getInternetUpdate();
 
