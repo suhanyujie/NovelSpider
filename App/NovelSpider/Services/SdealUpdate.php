@@ -34,8 +34,8 @@ class SdealUpdate
      * @return Array
      */
     public function getInternetUpdate($novelId) {
-
 //        QueryList::
+    
     }
 
 
