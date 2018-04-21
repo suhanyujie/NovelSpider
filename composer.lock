@@ -518,23 +518,23 @@
         },
         {
             "name": "workerman/workerman",
-            "version": "v3.4.1",
+            "version": "v3.5.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/walkor/Workerman.git",
-                "reference": "59506827fe677ac6df4f27c291026d17a52590d7"
+                "reference": "46a77574a5ca39def6dec51ddf350cf50daab309"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/walkor/Workerman/59506827fe677ac6df4f27c291026d17a52590d7.zip",
-                "reference": "59506827fe677ac6df4f27c291026d17a52590d7",
+                "url": "https://files.phpcomposer.com/files/walkor/Workerman/46a77574a5ca39def6dec51ddf350cf50daab309.zip",
+                "reference": "46a77574a5ca39def6dec51ddf350cf50daab309",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3"
             },
             "suggest": {
-                "ext-event": "For better performance."
+                "ext-event": "For better performance. "
             },
             "type": "library",
             "autoload": {
@@ -560,7 +560,7 @@
                 "asynchronous",
                 "event-loop"
             ],
-            "time": "2017-04-21T00:40:51+00:00"
+            "time": "2018-04-11T11:25:52+00:00"
         },
         {
             "name": "xiaoler/blade",
