@@ -14,12 +14,12 @@ $worker = new Worker('http://0.0.0.0:3002');
 $worker->count = 1;
 
 $worker->onMessage = function ($conn, $data) {
-     $requestHeader = Workerman\Protocols\Http::header();
-    
-    
-     $conn->send(json_encode($requestHeader, JSON_UNESCAPED_UNICODE));
-    
-    
+    $post = $data['post'];
+    var_dump($post);
+    $result = $post;
+    $conn->send(json_encode($result, JSON_UNESCAPED_UNICODE));
+
+
 //    $taskConn = new \Workerman\Connection\AsyncTcpConnection('text://127.0.0.1:3003');
 //    $taskConn->send('deal data');
 //
