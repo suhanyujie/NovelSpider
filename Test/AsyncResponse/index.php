@@ -14,9 +14,8 @@ $worker = new Worker('http://0.0.0.0:3002');
 $worker->count = 1;
 
 $worker->onMessage = function ($conn, $data) {
-    $post = $data['post'];
-    var_dump($post);
-    $result = $post;
+    var_dump($data);
+    $result = $data;
     $conn->send(json_encode($result, JSON_UNESCAPED_UNICODE));
 
 
