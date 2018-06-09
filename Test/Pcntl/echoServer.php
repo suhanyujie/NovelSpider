@@ -39,9 +39,8 @@ for ($i = 0; $i < $config['workerProcessNum']; $i++) {
     }
 }
 //主进程不退出
+//真正该做的应该是收集子进程pid，监控各个子进程的状态等等
 while (1) {
     sleep(2);
 }
 socket_close($listenSocket);
-
-
