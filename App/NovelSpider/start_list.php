@@ -17,7 +17,6 @@ use Predis\Client;
 use Novel\NovelSpider\Models\ListModel;
 use Novel\NovelSpider\Models\ContentModel;
 
-
 // 开启worker专门分发任务url数据
 $listTask = new Worker('Text://0.0.0.0:3001');
 $listTask->count = 1;
