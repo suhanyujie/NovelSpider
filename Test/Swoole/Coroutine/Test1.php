@@ -20,11 +20,18 @@ class Test1
     public function index()
     {
         $startTime = microtime(true);
-        go([$this, 'getList']);
-//        $this->data['testUrl'] = 'http://www.biquge.com.tw/14_14055/';
-//        go([$this, 'getList']);
-//        $this->data['testUrl'] = 'http://guzzle-cn.readthedocs.io/zh_CN/latest/quickstart.html';
-//        go([$this, 'getList']);
+        go(function () {
+            $this->data['testUrl'] = 'http://www.biquge.com.tw/14_14055/9198191.html';
+            go([$this, 'getList']);
+            $this->data['testUrl'] = 'http://www.biquge.com.tw/14_14055/9198549.html';
+            go([$this, 'getList']);
+            $this->data['testUrl'] = 'http://www.biquge.com.tw/14_14055/9194140.html';
+            go([$this, 'getList']);
+            $this->data['testUrl'] = 'http://www.biquge.com.tw/14_14055/9195936.html';
+            go([$this, 'getList']);
+
+            echo 'child coroutine...'.PHP_EOL;
+        });
         $endTime = microtime(true);
         $spend = round($endTime - $startTime, 2);
         echo '耗时：' . $spend . PHP_EOL;
@@ -45,17 +52,29 @@ class Test1
 //                'timeout'  => 5,
 //            ]);
 //            $response = $httpClient->request('get',$url);
-//            $response = $response->getBody();
-            $cli = new \Swoole\Coroutine\Http\Client('https://www.swoole.com', 443);
-            $cli->set(['timeout'=>2,]);
-            $cli->get('/wiki/page/774.html');
+//            $statusCode = $response->getStatusCode();
+//            $body = $response->getBody();
+//            $body = (string)$body;
+//            echo $statusCode.PHP_EOL;
+
+            $cli = new \Swoole\Coroutine\Http\Client('http://www.biquge.com.tw', 80);
+            $cli->setHeaders([
+                'Host'            => "http://www.biquge.com.tw",
+                "User-Agent"      => 'Chrome/49.0.2587.3',
+                'Accept'          => 'text/html,application/xhtml+xml,application/xml',
+                'Accept-Encoding' => 'gzip',
+            ]);
+            $cli->set(['timeout'=>4,]);
+            $cli->setDefer();
+            $cli->get('/14_14055/9198191.html');
             $cli->recv();
-            $res = $cli->body;
-            $cli->close();
+            $res = $cli->statusCode;
+
+            file_put_contents('test.log',(string)$res);
+            return;
         }catch(\Exception $e){
             echo 'error ';
         }
-        var_dump((string)$res);
     }
 }
 $event = new Test1();

@@ -6,13 +6,19 @@
  * Time: 上午8:43
  */
 
-use Swoole\Coroutine as co;
-
-co::create(function(){
-    $cli = new \Swoole\Coroutine\Http\Client('127.0.0.1', 9501);
+go(function(){
+    $cli = new \Swoole\Coroutine\Http\Client('http://www.biquge.com.tw', 80);
     $cli->setHeaders([
-        'Host'=>'https://www.qu.la',
+        'Host'            => "http://www.biquge.com.tw",
+        "User-Agent"      => 'Chrome/49.0.2587.3',
+        'Accept'          => 'text/html,application/xhtml+xml,application/xml',
+        'Accept-Encoding' => 'gzip',
     ]);
-    $result = $cli->get('/book/746');
-    var_dump($result);
+    $cli->set(['timeout'=>4,]);
+    $cli->setDefer();
+    $cli->get('/14_14055/9198191.html');
+    $cli->recv();
+    $res = $cli->statusCode;
+    var_dump($res);
 });
+echo date('Y-m-d H:i:s');
