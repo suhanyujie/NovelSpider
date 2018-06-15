@@ -57,7 +57,7 @@ class Test1
 //            $body = (string)$body;
 //            echo $statusCode.PHP_EOL;
 
-            $cli = new \Swoole\Coroutine\Http\Client('http://www.biquge.com.tw', 80);
+            $this->data['cli'][] = $cli = new \Swoole\Coroutine\Http\Client('http://www.biquge.com.tw', 80);
             $cli->setHeaders([
                 'Host'            => "http://www.biquge.com.tw",
                 "User-Agent"      => 'Chrome/49.0.2587.3',
