@@ -16,6 +16,25 @@ use Novel\NovelSpider\Controller\Test;
 use Predis\Client;
 use Novel\NovelSpider\Models\ListModel;
 use Novel\NovelSpider\Models\ContentModel;
+use Illuminate\Contracts\Container;
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Eloquent\Model as Eloquent;
+
+//数据库加载配置文件
+$database = [
+    'driver'    => 'mysql',
+    'host'      => '127.0.0.1',
+    'database'  => 'bbs_test',
+    'username'  => 'root',
+    'password'  => '123456',
+    'charset'   => 'utf8',
+    'collation' => 'utf8_unicode_ci',
+    'prefix'    => '',
+];
+$capsule = new Capsule;
+$capsule->addConnection($database);
+$capsule->setAsGlobal();
+$capsule->bootEloquent();
 
 // 开启worker专门分发任务url数据
 $listTask = new Worker('Text://0.0.0.0:3001');
@@ -30,10 +49,18 @@ $listTask->onWorkerStart = function($listTask)
     $redis->del($listKey);
     $novel = new Test();
     $res = $novel->getListFromMysql(2);
-    if(!$res){
-        echo "Mysql中也没有尚未抓取的url啦~1".PHP_EOL;
-    }else{
-        $novel->pushIntoRedis($res);
+    try{
+        if(!$res){
+            echo "Mysql中也没有尚未抓取的url啦~1".PHP_EOL;
+        }else{
+            $pushResult = $novel->pushIntoRedis($res);
+        }
+    }catch (\Exception $e){
+
+    }
+    if ($pushResult['status'] != 1) {
+        echo $pushResult['message'].PHP_EOL;
+        return;
     }
     $length = $redis->llen($listKey);
     echo 'process for list start~'.$length.PHP_EOL;
@@ -43,14 +70,12 @@ $listTask->onWorkerStart = function($listTask)
         echo "task run\n";
         // 如果该列表已经爬取过,那么只需爬取这个列表页的最后几条最新数据,放入redis队列中
         $hasSpider = true;
-
     });
 };
 $listTask->onMessage = function($connection, $data) use ($listKey,$count)
 {
     $count++;
     $data = json_decode($data,true);
-    var_dump($data);
     if($data['args']['contents'] === 'refresh-list'){
         $redis = new Predis\Client();
         $redis->del($listKey);

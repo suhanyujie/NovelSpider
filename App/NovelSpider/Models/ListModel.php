@@ -2,6 +2,9 @@
 namespace Novel\NovelSpider\Models;
 
 use Novel\NovelSpider\Models\MyDB;
+use Illuminate\Contracts\Container;
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class ListModel extends AbstractModel {
 
@@ -37,10 +40,16 @@ class ListModel extends AbstractModel {
             $arrayNew[$k] = $v;
         }
         $orderSql = '';
-        switch( $array['order'] ){
-            case 1:
-                $orderSql = ' ORDER BY id DESC ';
+        if (isset($array['order'])) {
+            switch( $array['order'] ){
+                case 1:
+                    $orderSql = ' ORDER BY id DESC ';
+                    break;
+            }
+        }else{
+            $orderSql = ' ORDER BY id DESC ';
         }
+
         $num = isset($array['num']) ? $array['num'] : 1000;
         $where .= implode(' AND ',$whereArr);
         if($whereArr){
@@ -48,6 +57,7 @@ class ListModel extends AbstractModel {
         }
         $db = new MyDB();
         $sql = "SELECT * FROM ".$this->table." WHERE 1 ".$where. $orderSql.' LIMIT '.$num;
+        var_dump($sql,$arrayNew);
         $res = $db->query("SELECT * FROM ".$this->table." WHERE 1 ".$where. $orderSql.' LIMIT '.$num, $arrayNew);
 
         return $res;

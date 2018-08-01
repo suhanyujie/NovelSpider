@@ -17,7 +17,10 @@ for ($i=0;$i<3;$i++) {
             'database' => 'node',
         ]);
         $res = $swoole_mysql->query('select * from node_article limit '.($i*2).', 2');
+        var_dump($res);
         echo $i,PHP_EOL;
+        co::sleep(2);
+        echo co::getHostByName('laravel.suhanyu.top');
     });
 }
 

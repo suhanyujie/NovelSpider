@@ -3,11 +3,9 @@ namespace Novel\NovelSpider\Controller;
 
 use Novel\NovelSpider\Models\ContentModel;
 use QL\QueryList;
-use Predis\Client;
 use Novel\NovelSpider\Models\ListModel;
-
 use Libs\Helper\NumberTransfer;
-
+use Novel\NovelSpider\Models\NovelListModel;
 
 class Test{
     // 只针对 "大宋王候" 的Novel
@@ -17,7 +15,13 @@ class Test{
 
     public function __construct(){
         if(!$this->redisObj){
-            $this->redisObj = new \Predis\Client();
+            $backupParam = [
+                'host'     => '127.0.0.1',
+                'port'     => 6379,
+                'database' => 0,
+            ];
+            $redis = new \Predis\Client();
+            $this->redisObj = $redis;
             if(!$this->redisObj){
                 echo 'redis没有启动吧!'.PHP_EOL;
                 return false;
@@ -110,12 +114,12 @@ class Test{
      */
     public function getListFromMysql($type=0){
         if(!$type)return false;
-        $lisrModel = new ListModel();
-        $res = $lisrModel->getAll(array(
-            'novel_id'=>2,
-            'flag'=>0,
-            'num'=>1000,
-        ));
+        $listModel = new NovelListModel();
+        $res = $listModel->getList([
+            'novel_id' => 2,
+            'flag'     => 0,
+            'limit'      => 1000,
+        ]);
 
         return $res;
     }
@@ -133,21 +137,21 @@ class Test{
         }
         $dataIdArr = [];
         // 没有则 将数据push到redis中
-        foreach($data as $K=>$v){
+        foreach($data as $k=>$v){
             $redis->lpush($this->listUrlKey,json_encode($v));
             $dataIdArr[] = $v['id'];
         }
         $flag = $redis->llen($this->listUrlKey);
         // push完成之后,将list表中的flag置为1
-        $listModel = new ListModel();
-        $flag = $listModel->updateMultiple([
-            'fieldParam'=>['flag'=>1],
-            'conditionParam'=>[
-                'id'=>$dataIdArr,
-            ],
+        $listModel = new NovelListModel();
+        $updateResult = $listModel->whereIn(id, $dataIdArr)->update([
+            'flag'=>1,
         ]);
+        if (!$updateResult) {
+            return ['status'=>4, 'message'=>'flag标记更新失败！'];
+        }
 
-        return true;
+        return ['status'=>1, 'message'=>'flag标记更新成功！'];
     }
     /**
      * 获取下一个可以抓取详情的url
