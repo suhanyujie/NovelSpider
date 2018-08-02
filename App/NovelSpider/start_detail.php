@@ -17,28 +17,28 @@ use Libs\Db\Db;
 $task = new Worker();
 // 开启多少个进程运行定时任务，注意多进程并发问题
 $task->count = 1;
+
+
 $task->onWorkerStart = function($task) {
     $keyConfig = [
         'list-key'=>'novel-list-key',
         'detail-key'=>'novel-detail-key',
     ];
-
-    $dbObj = Db::instance('db1');
-
-    var_dump($dbObj->select('*')->from('novel_list')->orderByDESC(['id'])->limit(2)->query());
-
-
-    // 重新 获取小说列表
-//    $novel = new Test();
-//    $flag = $novel->saveList();
-
+    $listKey = 'novel-list-key';
+    $redis = new Predis\Client();
+    $oneData = $redis->rpop($listKey);
+    //取出单个数据后，获取具体的详细信息
+    $oneData = json_decode($oneData, true);
+//    var_dump($oneData);
     // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器
-    if($task->id >= 0){
+    if($task->id >=0){
         echo "worker ".$task->id." start for detail~".PHP_EOL;
-        
         $listModel = new ListModel();
         $novel = new Test();
         $conModel = new ContentModel();
+        // 获取详情页的结果
+        $res = $novel->getDetail($oneData);
+        var_dump( $res );
         /*$count = 0;
         $runFlag = true;
         // 开启一个内部端口，方便内部系统推送数据，Text协议格式 文本+换行符

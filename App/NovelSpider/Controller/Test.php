@@ -7,6 +7,10 @@ use Novel\NovelSpider\Models\ListModel;
 use Libs\Helper\NumberTransfer;
 use Novel\NovelSpider\Models\NovelListModel;
 
+/**
+ * Class Test
+ * @package Novel\NovelSpider\Controller
+ */
 class Test{
     // 只针对 "大宋王候" 的Novel
     protected $baseUrl = 'http://www.biquwu.cc/biquge/17_17308/';
@@ -67,15 +71,14 @@ class Test{
 
     /**
      * 通过一个url抓取详情
+     * @param array $taskData
+     * @return bool
      */
     public function getDetail($taskData,$type=2){
         if(!$taskData){
             echo "没有url可以抓取详情啦~1".PHP_EOL;
             return false;
         }
-        // 不知为何 需要json_decode2次才能解析出json !!!!!!!!
-        $taskData = json_decode($taskData,true);
-        $taskData = json_decode($taskData,true);
         $url = $taskData['url'];
         //$url = 'http://www.biquwu.cc/biquge/17_17308/c5056844.html';// test data
         $hj = QueryList::Query($url,
@@ -133,7 +136,7 @@ class Test{
         // 如果有数据,则不用push
         if($redis->llen($this->listUrlKey)){
             $flag = $redis->llen($this->listUrlKey);
-            return true;
+            return ['status'=>1, 'message'=>'redis队列中已经有数据，无需入队！'];
         }
         $dataIdArr = [];
         // 没有则 将数据push到redis中
@@ -144,7 +147,7 @@ class Test{
         $flag = $redis->llen($this->listUrlKey);
         // push完成之后,将list表中的flag置为1
         $listModel = new NovelListModel();
-        $updateResult = $listModel->whereIn(id, $dataIdArr)->update([
+        $updateResult = $listModel->whereIn('id', $dataIdArr)->update([
             'flag'=>1,
         ]);
         if (!$updateResult) {

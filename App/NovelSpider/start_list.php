@@ -56,21 +56,22 @@ $listTask->onWorkerStart = function($listTask)
             $pushResult = $novel->pushIntoRedis($res);
         }
     }catch (\Exception $e){
-
+        echo $e->getMessage().PHP_EOL;
+        return ['status'=>$e->getCode(), 'message'=>$e->getMessage()];
     }
     if ($pushResult['status'] != 1) {
         echo $pushResult['message'].PHP_EOL;
-        return;
     }
     $length = $redis->llen($listKey);
     echo 'process for list start~'.$length.PHP_EOL;
     // 定时获取最新列表
     $time_interval = 3600*0.5;
-    Timer::add($time_interval, function(){
-        echo "task run\n";
-        // 如果该列表已经爬取过,那么只需爬取这个列表页的最后几条最新数据,放入redis队列中
-        $hasSpider = true;
-    });
+
+//    Timer::add($time_interval, function(){
+//        echo "task run\n";
+//        // 如果该列表已经爬取过,那么只需爬取这个列表页的最后几条最新数据,放入redis队列中
+//        $hasSpider = true;
+//    });
 };
 $listTask->onMessage = function($connection, $data) use ($listKey,$count)
 {

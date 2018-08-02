@@ -24,6 +24,9 @@ class NovelListModel extends Eloquent
         'err_flag',
     ];
 
+    const UPDATED_AT = null;
+    const CREATED_AT = null;
+
     public function getList($paramArr=[])
     {
         $options = [
