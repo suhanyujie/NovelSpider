@@ -11,25 +11,39 @@ use Predis\Client;
 use Novel\NovelSpider\Models\ListModel;
 use Novel\NovelSpider\Models\ContentModel;
 use Novel\NovelSpider\Services\SdealUpdate;
-
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Libs\Db\Db;
 
 $task = new Worker();
 // 开启多少个进程运行定时任务，注意多进程并发问题
 $task->count = 1;
+//数据库加载配置文件
+$database = [
+    'driver'    => 'mysql',
+    'host'      => '127.0.0.1',
+    'database'  => 'bbs_test',
+    'username'  => 'root',
+    'password'  => '123456',
+    'charset'   => 'utf8',
+    'collation' => 'utf8_unicode_ci',
+    'prefix'    => '',
+];
+$capsule = new Capsule;
+$capsule->addConnection($database);
+$capsule->setAsGlobal();
+$capsule->bootEloquent();
 
 
 $task->onWorkerStart = function($task) {
     $keyConfig = [
-        'list-key'=>'novel-list-key',
-        'detail-key'=>'novel-detail-key',
+        'list-key'   => 'novel-list-key',
+        'detail-key' => 'novel-detail-key',
     ];
     $listKey = 'novel-list-key';
     $redis = new Predis\Client();
     $oneData = $redis->rpop($listKey);
     //取出单个数据后，获取具体的详细信息
     $oneData = json_decode($oneData, true);
-//    var_dump($oneData);
     // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器
     if($task->id >=0){
         echo "worker ".$task->id." start for detail~".PHP_EOL;
@@ -37,8 +51,24 @@ $task->onWorkerStart = function($task) {
         $novel = new Test();
         $conModel = new ContentModel();
         // 获取详情页的结果
-        $res = $novel->getDetail($oneData);
-        var_dump( $res );
+        $detailInfo = $novel->getDetail($oneData);
+        var_dump($detailInfo);
+        $curTime = date('Y-m-d H:i:s');
+        $detailData = [
+            'list_id'   => $oneData['novel_id'],
+            'chapter'   => $oneData['chapter'],
+            'title'     => $oneData['title'],
+            'content'   => $detailInfo['content'],
+            'worker_id' => $task->id,
+            'date'      => $curTime,
+            'err_flag'  => 0,
+
+        ];
+        $createResult = $novel->saveDetail($detailData);
+        if ($createResult['status'] != 1) {
+            echo '抓取失败！章节：'.$oneData['chapter'].PHP_EOL;
+        }
+
         /*$count = 0;
         $runFlag = true;
         // 开启一个内部端口，方便内部系统推送数据，Text协议格式 文本+换行符
@@ -89,8 +119,8 @@ $task->onWorkerStart = function($task) {
         $taskConnetion->close();*/
         
         // 自动更新最新连载
-        $dealUpdateService = new SdealUpdate( 1 );
-        $dealUpdateService->getInternetUpdate();
+//        $dealUpdateService = new SdealUpdate( 1 );
+//        $dealUpdateService->getInternetUpdate();
 
         // 定时请求,保证获取最新
         $time_interval = 2;// 3600*1.5  秒数
@@ -102,14 +132,14 @@ $task->onWorkerStart = function($task) {
             // $novel->getLatestChapter();
             // 获取最新的最后一个url,查看是否与mysql中的最新的url,是否一致,不一致,则把最新的url等数据加入mysql
             // 获取所有小说
-            $dbObj = Db::instance('db1');
-            $allNovel = $dbObj->select('*')->from('novel_main')->where('novel_status=0')->orderByDESC(['id'])->limit(2)->query();
-            if($allNovel){
-                foreach($allNovel as $k=>$row){
-                    $dealUpdateService = new SdealUpdate( $row['id'] );
-                    $dealUpdateService->getListUrl();
-                }
-            }
+//            $dbObj = Db::instance('db1');
+//            $allNovel = $dbObj->select('*')->from('novel_main')->where('novel_status=0')->orderByDESC(['id'])->limit(2)->query();
+//            if ($allNovel) {
+//                foreach ($allNovel as $k => $row) {
+//                    $dealUpdateService = new SdealUpdate($row['id']);
+//                    $dealUpdateService->getListUrl();
+//                }
+//            }
         });
     }// end of onstart function
 

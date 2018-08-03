@@ -14,11 +14,7 @@ use \Workerman\Lib\Timer;
 use QL\QueryList;
 use Novel\NovelSpider\Controller\Test;
 use Predis\Client;
-use Novel\NovelSpider\Models\ListModel;
-use Novel\NovelSpider\Models\ContentModel;
-use Illuminate\Contracts\Container;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use Illuminate\Database\Eloquent\Model as Eloquent;
 
 //数据库加载配置文件
 $database = [

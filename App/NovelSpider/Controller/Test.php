@@ -2,6 +2,7 @@
 namespace Novel\NovelSpider\Controller;
 
 use Novel\NovelSpider\Models\ContentModel;
+use Novel\NovelSpider\Models\NovelContentModel;
 use QL\QueryList;
 use Novel\NovelSpider\Models\ListModel;
 use Libs\Helper\NumberTransfer;
@@ -16,6 +17,8 @@ class Test{
     protected $baseUrl = 'http://www.biquwu.cc/biquge/17_17308/';
     protected $redisObj = null;
     protected $listUrlKey = 'novel-list-key';
+
+    protected $data = [];
 
     public function __construct(){
         if(!$this->redisObj){
@@ -81,19 +84,21 @@ class Test{
         }
         $url = $taskData['url'];
         //$url = 'http://www.biquwu.cc/biquge/17_17308/c5056844.html';// test data
-        $hj = QueryList::Query($url,
-            array(
-                "title"=>array('.bookname>h1','html'),
-                "content"=>array('#content','html'),
-            ),
-            '#wrapper','UTF-8');
+        $hj = QueryList::get($url)->encoding('utf-8')->rules([
+            "title"   => ['.bookname>h1', 'html'],
+            "content" => ['#content', 'html'],
+        ])->range('#wrapper')->query(function ($item) {
+            return $item['title'];
+        });
         $data = $hj->getData(function($item){
             return $item;
         });
-        $data[0]['chapter'] = $taskData['chapter'];
+        var_dump($data->all());
+        //$data[0]['chapter'] = $taskData['chapter'];
 
-        return $data[0];
+        return $data->all();
     }
+
     /**
      * 从另一个worker进程中获取taskData
      */
@@ -176,11 +181,19 @@ class Test{
     /**
      * 存储1篇详情
      */
-    public function saveDetail($dataOri = []){
-        if(!$dataOri)return false;
-        $data = [
-            ''
-        ];
+    public function saveDetail($contentData = []){
+        if(empty($contentData))return ['status'=>2, 'message'=>'参数缺省$contentData！'];
+        if (isset($this->data['detailModel'])) {
+            $model = $this->data['detailModel'];
+        }else{
+            $model = $this->data['detailModel'] = new NovelContentModel();
+        }
+        $createResult = $model->create($contentData);
+        if (!$createResult) {
+            return ['status'=>3, 'message'=>'保存失败！'];
+        }else{
+            return ['status'=>1, 'message'=>'保存失败！'];
+        }
     }// end of function
     /**
      * 获取历史抓取的最新的一章
