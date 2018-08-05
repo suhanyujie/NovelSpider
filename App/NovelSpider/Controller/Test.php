@@ -79,24 +79,65 @@ class Test{
      */
     public function getDetail($taskData,$type=2){
         if(!$taskData){
-            echo "没有url可以抓取详情啦~1".PHP_EOL;
-            return false;
+            $message = "没有url可以抓取详情啦~1".PHP_EOL;
+            return ['status'=>8300, 'message'=>$message ];
         }
         $url = $taskData['url'];
         //$url = 'http://www.biquwu.cc/biquge/17_17308/c5056844.html';// test data
-        $hj = QueryList::get($url)->encoding('utf-8')->rules([
+        //->encoding('UTF-8','GB2312')
+        $hj = QueryList::get($url)->rules([
             "title"   => ['.bookname>h1', 'html'],
             "content" => ['#content', 'html'],
-        ])->range('#wrapper')->query(function ($item) {
-            return $item['title'];
-        });
-        $data = $hj->getData(function($item){
+        ])->query(function ($item){
+            $item['title'] = iconv('gbk','utf-8//IGNORE', $item['title']);
+            $item['content'] = iconv('gbk','utf-8//IGNORE', $item['content']);
             return $item;
-        });
-        var_dump($data->all());
-        //$data[0]['chapter'] = $taskData['chapter'];
+        })->getData();
+        $detailData = $hj->first();
+        $detailData['chapter'] = $taskData['chapter'];
 
-        return $data->all();
+        return ['status'=>1, 'data'=>$detailData, 'message'=>'获取详情成功！'];
+    }
+
+    /**
+     * 小说详情内容的新增或更新
+     * @param array $paramArr
+     * @return array
+     */
+    public function detailInsertOrUpdate($paramArr=[])
+    {
+        $options = [
+            'where' => [],//如果是新增，则where值可以为空；如果是更新，则where值为数组，例如 [ ['id','=','21']  ]
+            'data'  => [],
+        ];
+        is_array($paramArr) && $options = array_merge($options, $paramArr);
+        extract($options);
+        $model = new NovelContentModel();
+        if (!empty($options['where'])) {
+            foreach ($options['where'] as $option) {
+                $model = $model->where($option[0], $option[1], $option[1]);
+            }
+            $existCount = $model->count();
+            if ($existCount > 0) {
+                foreach ($options['where'] as $option) {
+                    $model = $model->where($option[0], $option[1], $option[1]);
+                }
+                $result = $model->update($options['data']);
+                $message = '更新';
+            } else {
+                $result = $model->create($options['data']);
+                $message = '新增';
+            }
+        }else{
+            $result = $model->create($options['data']);
+            $message = '新增';
+        }
+
+        if (empty($result)) {
+            return ['status' => 2, 'message' => $message . '失败！','data'=>$result,];
+        } else {
+            return ['status' => 1, 'message' => $message . '成功！', 'data'=>$result,];
+        }
     }
 
     /**

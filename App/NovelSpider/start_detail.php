@@ -47,27 +47,36 @@ $task->onWorkerStart = function($task) {
     // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器
     if($task->id >=0){
         echo "worker ".$task->id." start for detail~".PHP_EOL;
-        $listModel = new ListModel();
         $novel = new Test();
-        $conModel = new ContentModel();
         // 获取详情页的结果
         $detailInfo = $novel->getDetail($oneData);
-        var_dump($detailInfo);
+        if ($detailInfo['status'] != 1) {
+            echo $detailInfo['message'];
+            return $detailInfo;
+        }
+        $detailData = $detailInfo['data'];
         $curTime = date('Y-m-d H:i:s');
         $detailData = [
             'list_id'   => $oneData['novel_id'],
             'chapter'   => $oneData['chapter'],
             'title'     => $oneData['title'],
-            'content'   => $detailInfo['content'],
+            'content'   => $detailData['content'],
             'worker_id' => $task->id,
             'date'      => $curTime,
             'err_flag'  => 0,
 
         ];
-        $createResult = $novel->saveDetail($detailData);
-        if ($createResult['status'] != 1) {
-            echo '抓取失败！章节：'.$oneData['chapter'].PHP_EOL;
+        $saveResult = $novel->detailInsertOrUpdate([
+            'where' => [
+                ['chapter','=',$oneData['chapter'] ],
+            ],
+            'data'  => $detailData,
+        ]);
+        if ($saveResult['status'] != 1) {
+            echo $saveResult['message'] . PHP_EOL;
+            return $saveResult;
         }
+        var_dump($saveResult);
 
         /*$count = 0;
         $runFlag = true;
