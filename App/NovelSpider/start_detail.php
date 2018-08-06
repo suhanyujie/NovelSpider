@@ -64,7 +64,6 @@ $task->onWorkerStart = function($task) {
             'worker_id' => $task->id,
             'date'      => $curTime,
             'err_flag'  => 0,
-
         ];
         $saveResult = $novel->detailInsertOrUpdate([
             'where' => [
