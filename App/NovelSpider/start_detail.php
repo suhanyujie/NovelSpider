@@ -75,14 +75,14 @@ $task->onWorkerStart = function($task) {
     ];
     $listKey = 'novel-list-key';
     $redis = new Predis\Client();
-    $oneData = $redis->rpop($listKey);
-    //取出单个数据后，获取具体的详细信息
-    $oneData = json_decode($oneData, true);
     // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器
     if($task->id >=0){
         echo "worker ".$task->id." start for detail~".PHP_EOL;
         while(1)
         {
+            $oneData = $redis->rpop($listKey);
+            //取出单个数据后，获取具体的详细信息
+            $oneData = json_decode($oneData, true);
             getDetail($oneData, $task->id);
             $random = mt_rand(1,3);
             sleep($random);
