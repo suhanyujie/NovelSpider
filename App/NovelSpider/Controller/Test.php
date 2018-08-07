@@ -112,15 +112,19 @@ class Test{
         ];
         is_array($paramArr) && $options = array_merge($options, $paramArr);
         extract($options);
-        $model = new NovelContentModel();
+        if (isset($this->data['novelContentModel'])) {
+            $model = $this->data['novelContentModel'];
+        }else{
+            $model = $this->data['novelContentModel'] = new NovelContentModel();
+        }
         if (!empty($options['where'])) {
             foreach ($options['where'] as $option) {
-                $model = $model->where($option[0], $option[1], $option[1]);
+                $model = $model->where($option[0], $option[1], $option[2]);
             }
-            $existCount = $model->count();
-            if ($existCount > 0) {
+            $existObj = $model->get()->first();
+            if (!is_null($existObj)) {
                 foreach ($options['where'] as $option) {
-                    $model = $model->where($option[0], $option[1], $option[1]);
+                    $model = $model->where($option[0], $option[1], $option[2]);
                 }
                 $result = $model->update($options['data']);
                 $message = '更新';

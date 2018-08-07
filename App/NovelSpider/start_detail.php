@@ -34,6 +34,40 @@ $capsule->setAsGlobal();
 $capsule->bootEloquent();
 
 
+function getDetail($oneTaskData=[], $taskId=0)
+{
+    $novel = new Test();
+    // 获取详情页的结果
+    $detailInfo = $novel->getDetail($oneTaskData);
+    if ($detailInfo['status'] != 1) {
+        echo $detailInfo['message'];
+        return $detailInfo;
+    }
+    $detailData = $detailInfo['data'];
+    $curTime = date('Y-m-d H:i:s');
+    $detailData = [
+        'list_id'   => $oneTaskData['novel_id'],
+        'chapter'   => $oneTaskData['chapter'],
+        'title'     => $oneTaskData['title'],
+        'content'   => $detailData['content'],
+        'worker_id' => $taskId,
+        'date'      => $curTime,
+        'err_flag'  => 0,
+    ];
+    $saveResult = $novel->detailInsertOrUpdate([
+        'where' => [
+            ['chapter','=',$oneTaskData['chapter'] ],
+        ],
+        'data'  => $detailData,
+    ]);
+    if ($saveResult['status'] != 1) {
+        echo $saveResult['message'] . PHP_EOL;
+        return $saveResult;
+    }
+    echo date('Y-m-d H:i:s').'--->'.$saveResult['message'].PHP_EOL;
+    var_dump($saveResult['data']);
+}
+
 $task->onWorkerStart = function($task) {
     $keyConfig = [
         'list-key'   => 'novel-list-key',
@@ -47,35 +81,12 @@ $task->onWorkerStart = function($task) {
     // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器
     if($task->id >=0){
         echo "worker ".$task->id." start for detail~".PHP_EOL;
-        $novel = new Test();
-        // 获取详情页的结果
-        $detailInfo = $novel->getDetail($oneData);
-        if ($detailInfo['status'] != 1) {
-            echo $detailInfo['message'];
-            return $detailInfo;
+        while(1)
+        {
+            getDetail($oneData, $task->id);
+            $random = mt_rand(1,3);
+            sleep($random);
         }
-        $detailData = $detailInfo['data'];
-        $curTime = date('Y-m-d H:i:s');
-        $detailData = [
-            'list_id'   => $oneData['novel_id'],
-            'chapter'   => $oneData['chapter'],
-            'title'     => $oneData['title'],
-            'content'   => $detailData['content'],
-            'worker_id' => $task->id,
-            'date'      => $curTime,
-            'err_flag'  => 0,
-        ];
-        $saveResult = $novel->detailInsertOrUpdate([
-            'where' => [
-                ['chapter','=',$oneData['chapter'] ],
-            ],
-            'data'  => $detailData,
-        ]);
-        if ($saveResult['status'] != 1) {
-            echo $saveResult['message'] . PHP_EOL;
-            return $saveResult;
-        }
-        var_dump($saveResult);
 
         /*$count = 0;
         $runFlag = true;
