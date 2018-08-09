@@ -7,6 +7,7 @@ use QL\QueryList;
 use Novel\NovelSpider\Models\ListModel;
 use Libs\Helper\NumberTransfer;
 use Novel\NovelSpider\Models\NovelListModel;
+use Novel\NovelSpider\Models\NovelMainModel;
 
 /**
  * Class Test
@@ -35,6 +36,7 @@ class Test{
             }
         }
     }
+
     // 获取列表
     public function getList(){
         $url = 'http://www.biquwu.cc/biquge/17_17308/';
@@ -57,6 +59,47 @@ class Test{
 
         return $data[0]['list'];
     }// end of function
+
+    /**
+     * @desc 获取所有需要抓取的小说
+     * @param array $paramArr
+     * @return collect
+     */
+    public function getNovelList($paramArr=[])
+    {
+        $options = [
+            'novel_status' => '',//
+            'fields'       => '*',// string 查询字段
+            'isCount'      => '',// 可选：1 是否只返回数据的数量
+            'debug'        => '',// 可选：1 调试，为true时，打印出sql语句
+            'offset'       => 0,// 可选 int mysql查询数据的偏移量
+            'limit'        => 1,// 可选 int mysql查询数据的条数限制
+        ];
+        is_array($paramArr) && $options = array_merge($options, $paramArr);
+        extract($options);
+        $model = new NovelMainModel();
+        if (!empty($novel_status)) {
+            $model = $model->where('novel_status', $novel_status);
+        }
+        if (!empty($isCount)) {
+            return $model->count();
+        }
+        //order
+        if (!empty($order)) {
+            foreach ($order as $orderField => $orderDir) {
+                $model = $model->orderby($orderField, $orderDir);
+            }
+        } else {
+            $model = $model->orderby('id', 'desc');
+        }
+        $model = $model->offset($offset)->limit($limit);
+        if (!empty($debug)) {
+            echo $model->toSql();exit();
+        }
+        $data = $model->get([$fields]);
+
+        return $data;
+    }
 
     /**
      * 从redis获取列表

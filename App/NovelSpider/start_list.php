@@ -40,10 +40,22 @@ $listKey = 'novel-list-key';
 $count = 0;
 $listTask->onWorkerStart = function($listTask)
 {
+    //获取列表页的逻辑流程如下
+    //根据小说id，去抓取列表页，看看列表页中的最新的章节数是否和已存的一致，如果不一致，则进行更新
+    $novel = new Test();
+    //获取所有正要抓取列表内容的小说
+    $novels = $novel->getNovelList([
+        'novel_status' => 1,
+    ]);
+    //针对每个小说 获取他们的列表页
+    $novels->map(function (){
+
+    });
+
+
     $listKey = 'novel-list-key';
     $redis = new Predis\Client();
     $redis->del($listKey);
-    $novel = new Test();
     $res = $novel->getListFromMysql(2);
     try{
         if(!$res){

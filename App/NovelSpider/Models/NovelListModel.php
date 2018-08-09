@@ -8,8 +8,6 @@
 
 namespace Novel\NovelSpider\Models;
 
-use Illuminate\Contracts\Container;
-use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class NovelListModel extends Eloquent
