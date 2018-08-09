@@ -78,8 +78,8 @@ class Test{
      * @return bool
      */
     public function getDetail($taskData,$type=2){
-        if(!$taskData){
-            $message = "没有url可以抓取详情啦~1".PHP_EOL;
+        if(empty($taskData)){
+            $message = date('Y-m-d H:i:s')."-->没有url可以抓取详情啦~".PHP_EOL;
             return ['status'=>8300, 'message'=>$message ];
         }
         $url = $taskData['url'];

@@ -43,6 +43,10 @@ function getDetail($oneTaskData=[], $taskId=0)
         echo $detailInfo['message'];
         return $detailInfo;
     }
+    if ($oneTaskData['chapter'] <= 0) {
+        echo $message = '章节为0，不是正常的正文内容！'.PHP_EOL;
+        return ['status'=>2, 'message'=>$message];
+    }
     $detailData = $detailInfo['data'];
     $curTime = date('Y-m-d H:i:s');
     $detailData = [
