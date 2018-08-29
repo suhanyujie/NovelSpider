@@ -2,6 +2,10 @@
 require 'vendor/autoload.php';
 use GuzzleHttp\Client;
 
+$a = [
+    12312312
+];
+
 $client = new Client([
     // Base URI is used with relative requests
     'base_uri' => 'http://httpbin.org',

@@ -6,11 +6,10 @@
  * Date: 17/4/30
  * Time: 下午5:27
  */
-
-
 namespace Novel\NovelSpider\Controller;
 
 use Novel\NovelSpider\Models\ListModel;
+use Tool\Helper\NumberTransfer;
 
 class ListStore
 {
@@ -39,6 +38,4 @@ class ListStore
         }
         echo '完成的章数为：'.count($paramArr);
     }
-
-
 }
