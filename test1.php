@@ -94,10 +94,3 @@ $client = new Client([
 ]);
 
 var_dump($client);
-
-
-
-
-
-
-
