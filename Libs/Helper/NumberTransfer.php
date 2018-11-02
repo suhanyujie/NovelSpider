@@ -60,9 +60,4 @@ class NumberTransfer {
 
         return $var;
     }
-
-
-
 }// end of class
-
-
