@@ -165,8 +165,6 @@ $task->onWorkerStart = function($task) {
 //            }
         });
     }// end of onstart function
-
-
 };
 
 // 运行worker
