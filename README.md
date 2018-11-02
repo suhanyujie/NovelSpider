@@ -1,5 +1,5 @@
 # NovelSpider
-* 爬取个人喜欢的小说,练练手
+* 爬取小说,练练手
 
 ## 类库
 * mysql采用pdo类库,来自第三方.https://github.com/indieteq/indieteq-php-my-sql-pdo-database-class
@@ -14,8 +14,8 @@
 * 最后,将bind稍加修改,又能再次使用上方所说的pdo类.
 
 ## 安装(install)
-* 将第三方pdo的类做小小调整:将`/vendor/indieteq/indieteq-php-my-sql-pdo-database-class/easyCRUD/easyCRUD.class.php`下的私有属性改为protected.(private $db;->protected $db;)
-
+* 将第三方pdo的类做小小调整:将 `/vendor/indieteq/indieteq-php-my-sql-pdo-database-class/easyCRUD/easyCRUD.class.php`下的私有属性改为protected.(private $db;->protected $db;)
+* 截止20181102，目前已经将数据的orm改为 `laravel` 的 `Illuminate database`，详细使用可以参考[官方库](https://github.com/illuminate/database)的文档示例
 
 ## 一些注意事项
 * 更新workerman的软件包 `composer update workerman/workerman`
@@ -27,10 +27,9 @@
 
 
 #### 小说主表
-* 新建一张表,防止每部小说的列表信息,一部小说只有一条
+* 新建一张表,防止每部小说的列表信息,一部小说只有一条 novel_main
 
 #### 测试代码
+* 更换出具库的查询工具 20181102
 * 建立好测试目录,引入phpunit 20170423
 * 编写测试代码.已成功在本地运行一个测试代码
-
-
