@@ -69,6 +69,7 @@ class NovelListModel extends Eloquent
             echo $model->toSql();exit();
         }
         $data = $model->get([$fields]);
+
         return $data;
     }
 }

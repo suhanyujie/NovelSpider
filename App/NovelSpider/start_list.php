@@ -48,38 +48,37 @@ $listTask->onWorkerStart = function($listTask)
         'novel_status' => 1,
     ]);
     //针对每个小说 获取他们的列表页
-    $novels = $novels->map(function ($item){
-        var_dump($item);exit(PHP_EOL.'下午8:21'.PHP_EOL);
-    });
-    exit('111');
-    $listKey = 'novel-list-key';
-    $redis = new Predis\Client();
-    $redis->del($listKey);
-    $res = $novel->getListFromMysql(2);
-    try{
-        if(!$res){
-            echo "Mysql中也没有尚未抓取的url啦~1".PHP_EOL;
-        }else{
-            $pushResult = $novel->pushIntoRedis($res);
+    $novels->map(function ($item) use ($novel) {
+        $listKey = 'novel-list-key:' . $item->id;
+        $redis   = new Predis\Client();
+        $redis->del($listKey);
+        $res = $novel->getListFromMysql($item->id);
+        try {
+            if (!$res) {
+                echo "Mysql中也没有尚未抓取的url啦~1\n";
+            } else {
+                $pushResult = $novel->pushIntoRedis($res);
+            }
+        } catch (\Exception $e) {
+            echo $e->getMessage() . PHP_EOL;
+            return ['status' => $e->getCode(), 'message' => $e->getMessage()];
         }
-    }catch (\Exception $e){
-        echo $e->getMessage().PHP_EOL;
-        return ['status'=>$e->getCode(), 'message'=>$e->getMessage()];
-    }
-    if ($pushResult['status'] != 1) {
-        echo $pushResult['message'].PHP_EOL;
-    }
-    $length = $redis->llen($listKey);
-    echo 'process for list start~'.$length.PHP_EOL;
+        if ($pushResult['status'] != 1) {
+            echo $pushResult['message'] . PHP_EOL;
+        }
+        $length = $redis->llen($listKey);
+        echo 'process for list start~' . $length . PHP_EOL;
+    });
+
     // 定时获取最新列表
     $time_interval = 3600*0.5;
-
 //    Timer::add($time_interval, function(){
 //        echo "task run\n";
 //        // 如果该列表已经爬取过,那么只需爬取这个列表页的最后几条最新数据,放入redis队列中
 //        $hasSpider = true;
 //    });
 };
+
 $listTask->onMessage = function($connection, $data) use ($listKey,$count)
 {
     $count++;

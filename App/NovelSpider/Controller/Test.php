@@ -3,6 +3,7 @@ namespace Novel\NovelSpider\Controller;
 
 use Novel\NovelSpider\Models\ContentModel;
 use Novel\NovelSpider\Models\NovelContentModel;
+use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use QL\QueryList;
 use Novel\NovelSpider\Models\ListModel;
 use Libs\Helper\NumberTransfer;
@@ -208,13 +209,18 @@ class Test{
     /**
      * 查询MySQL中的列表url,向redis中push  使用list数据结构
      */
-    public function getListFromMysql($type=0){
-        if(!$type)return false;
-        $listModel = new NovelListModel();
+    public function getListFromMysql($novelId=0){
+        if(!$novelId)return false;
+        if (isset($this->data['listModel'])) {
+            $listModel = $this->data['listModel'];
+        } else {
+            $this->data['listModel'] =
+            $listModel = new NovelListModel();
+        }
         $res = $listModel->getList([
-            'novel_id' => 2,
-            'flag'     => 0,
-            'limit'      => 1000,
+            'novel_id' => $novelId,
+            'flag'     => 2,//2未抓取；1抓取过
+            'limit'    => 1000,
         ]);
 
         return $res;
@@ -223,12 +229,11 @@ class Test{
      * 向redis中lpush数据url
      */
     public function pushIntoRedis($data){
-        if(!$data)return false;
+        if ($data->count() < 1) return false;
         $redis = $this->redisObj;
-        $flag = '';
         // 如果有数据,则不用push
-        if($redis->llen($this->listUrlKey)){
-            $flag = $redis->llen($this->listUrlKey);
+        $queueTaskLen = $redis->llen($this->listUrlKey);
+        if($queueTaskLen > 0){
             return ['status'=>1, 'message'=>'redis队列中已经有数据，无需入队！'];
         }
         $dataIdArr = [];
@@ -236,8 +241,8 @@ class Test{
         foreach($data as $k=>$v){
             $redis->lpush($this->listUrlKey,json_encode($v));
             $dataIdArr[] = $v['id'];
+            echo "列表{$v['id']}已经加入队列\n";
         }
-        $flag = $redis->llen($this->listUrlKey);
         // push完成之后,将list表中的flag置为1
         $listModel = new NovelListModel();
         $updateResult = $listModel->whereIn('id', $dataIdArr)->update([
