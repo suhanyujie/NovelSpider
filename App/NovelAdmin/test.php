@@ -12,7 +12,7 @@ use \Workerman\Worker;
 use Workerman\WebServer;
 
 $web = new WebServer('http://0.0.0.0:8080');
-$web->addRoot('suhy.zyw.com',__DIR__);
+$web->addRoot('suhy.zyw.com',__DIR__.'/../../Frontend/dist');
 $web->count = 3;
 
 Worker::runAll();

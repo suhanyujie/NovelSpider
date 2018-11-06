@@ -15,21 +15,31 @@
 
 ## 安装(install)
 * 将第三方pdo的类做小小调整:将 `/vendor/indieteq/indieteq-php-my-sql-pdo-database-class/easyCRUD/easyCRUD.class.php`下的私有属性改为protected.(private $db;->protected $db;)
-* 截止20181102，目前已经将数据的orm改为 `laravel` 的 `Illuminate database`，详细使用可以参考[官方库](https://github.com/illuminate/database)的文档示例
+* 引入前端框架 [iview](https://www.iviewui.com/) 作为前端展示用:
+
+```shell
+cd Frontend;
+npm install;
+npm run build;
+//此时使用workerman作为web容器，启动
+php App/NovelAdmin/test.php start;
+```
 
 ## 一些注意事项
 * 更新workerman的软件包 `composer update workerman/workerman`
+* 截止20181102，目前已经将数据的orm改为 `laravel` 的 `Illuminate database`，详细使用可以参考[官方库](https://github.com/illuminate/database)的文档示例
+
 
 ## 关于爬取小说的一些思路
 ### 列表爬虫思路：
 * 一个单独的进程，会有定时器，定时循环所有小说看他们是否产生最新连载。 20170422
 * 一旦有发现一个，则将其尚未爬取的章节加入到“爬取详情页”的任务队列
 
-
 #### 小说主表
 * 新建一张表,防止每部小说的列表信息,一部小说只有一条 novel_main
 
 #### 测试代码
+* 添加前端界面展示 20181106
 * 更换出具库的查询工具 20181102
 * 建立好测试目录,引入phpunit 20170423
 * 编写测试代码.已成功在本地运行一个测试代码
