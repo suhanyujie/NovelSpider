@@ -11,7 +11,10 @@ require __DIR__ . "/../../vendor/autoload.php";
 use \Workerman\Worker;
 use Workerman\WebServer;
 
-$web = new WebServer('http://0.0.0.0:8080');
+$encConfig = parse_ini_file(__DIR__ . "/../../.env");
+
+$port = isset($encConfig['WEB_SITE_PORT'])&&$encConfig['WEB_SITE_PORT'] ? $encConfig['WEB_SITE_PORT'] : 8080;
+$web = new WebServer('http://0.0.0.0:'.$port);
 $web->addRoot('suhy.zyw.com',__DIR__.'/../../Frontend/dist');
 $web->count = 3;
 

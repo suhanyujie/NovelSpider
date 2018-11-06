@@ -6,3 +6,5 @@
 /.idea
 /storage
 /Frontend/node_modules
+.env
+/.env
