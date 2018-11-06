@@ -107,8 +107,4 @@ class ListSpider
     public function setMainAreaSelector($selector) {
         $this->mainSelector = $selector;
     }
-
-
-
-
 } // end of class

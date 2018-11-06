@@ -13,7 +13,6 @@ use Tool\Helper\NumberTransfer;
 
 class ListStore
 {
-
     /**
      * @desc: 储存列表的章节数据
      * @author:Samuel Su(suhanyu)

@@ -9,13 +9,10 @@
 require __DIR__ . "/../../vendor/autoload.php";
 
 use \Workerman\Worker;
+use Workerman\WebServer;
 
-$http_worker = new Worker('http://0.0.0.0:3001');
-$http_worker->count = 2;
-$http_worker->name = 'testHttpServer';
-$http_worker->onMessage = function ($connection, $data) {
-    var_dump($data);
-    $connection->send('123123123123');
-};
+$web = new WebServer('http://0.0.0.0:8080');
+$web->addRoot('suhy.zyw.com',__DIR__);
+$web->count = 3;
+
 Worker::runAll();
-
