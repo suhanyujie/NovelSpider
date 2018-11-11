@@ -2,16 +2,20 @@
 /**
  * Created by PhpStorm.
  * User: suhanyu
- * Date: 18/6/9
- * Time: 下午3:35
+ * Date: 18/11/11
+ * Time: 上午11:04
  */
 
 
-$eventBase = new EventBase();
-$timer = new Event($eventBase, -1, Event::TIMEOUT | Event::PERSIST, function (){
-    echo microtime(true)." : 歼15，滑跃，起飞！".PHP_EOL;
-});
-$tick = 0.5;
-$timer->add($tick);
-$eventBase->loop();
+$method = Event::getSupportedMethods();
+print_r( $method );
 
+
+$eventBase = new EventBase();
+$event = new Event($eventBase,SIGTERM,Event::SIGNAL,function () {
+    echo "signal term\n";
+});
+$event->add();
+echo "IO模型的类型：{$eventBase->getMethod()}\n";
+echo "进入循环\n";
+$eventBase->loop();
