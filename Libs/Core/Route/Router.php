@@ -8,6 +8,7 @@
 
 namespace Libs\Core\Route;
 
+use Novel\Controllers;
 
 class Router
 {
@@ -16,7 +17,7 @@ class Router
 
     }
 
-    public static function match($type=['get'],$path='',$method=''):bool
+    public static function match($type=['get'],$path='',$method=''):array
     {
         $methodArr = explode('@', $method);
         if (count($methodArr)<2) {
@@ -24,6 +25,17 @@ class Router
         }
         $controllerName = $methodArr[0];
         $methodName = $methodArr[1];
+        $path = str_replace('/','\\',$path);
+        $controllerName = "Novel\\Controllers\\{$path}\\{$controllerName}";
+        try {
+            $result = call_user_func([(new $controllerName), $methodName]);
+        } catch (\Exception $e) {
+            $result = [
+                'status' => $e->getCode(),
+                'msg'    => $e->getMessage(),
+            ];
+        }
 
+        return $result;
     }
 }

@@ -38,11 +38,14 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent) {
         return;
     }
     //此处，针对请求数据，路由匹配
-    $url = $data['server']['HTTP_REFERER'];
-    Router::match(['get','match'],'/Access/Login','Access\LoginController@login');
+    $refer = $data['server']['HTTP_REFERER'] ?? '';
+    $responseStr = 'hello world!';
+    $result = Router::match(['get','match'],'Access','LoginController@login');
+    if (is_array($result)) {
+        $responseStr = json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
 
-    var_dump($connection, $data);
-    $connection->send('hello world!');
+    $connection->send($responseStr);
 };
 
 Worker::runAll();

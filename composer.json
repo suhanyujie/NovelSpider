@@ -19,7 +19,7 @@
 
       ],
       "psr-4": {
-         "Novel\\": "App/",
+         "Novel\\": "Novel/",
          "Libs\\": "Libs/",
          "Config\\": "Config/",
          "Test\\": "Test/"

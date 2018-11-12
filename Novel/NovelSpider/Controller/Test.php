@@ -4,7 +4,6 @@ namespace Novel\NovelSpider\Controller;
 
 use Novel\NovelSpider\Models\ContentModel;
 use Novel\NovelSpider\Models\NovelContentModel;
-use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 use QL\QueryList;
 use Novel\NovelSpider\Models\ListModel;
 use Libs\Helper\NumberTransfer;

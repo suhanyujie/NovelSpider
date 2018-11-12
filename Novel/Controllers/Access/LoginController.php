@@ -6,15 +6,17 @@
  * Time: 下午2:44
  */
 
-namespace App\Controller\Access;
+namespace Novel\Controllers\Access;
 
-
-use App\Controller\Controller;
+use Novel\Controllers\Controller;
 
 class LoginController extends Controller
 {
     public function login()
     {
-        
+        return [
+            'status'=>1,
+            'msg'=>'123123 test',
+        ];
     }
 }

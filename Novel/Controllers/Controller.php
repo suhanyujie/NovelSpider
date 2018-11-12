@@ -6,7 +6,7 @@
  * Time: 下午2:44
  */
 
-namespace App\Controller;
+namespace Novel\Controllers;
 
 
 class Controller
