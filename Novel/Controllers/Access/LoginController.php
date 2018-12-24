@@ -14,9 +14,12 @@ class LoginController extends Controller
 {
     public function login()
     {
-        return [
+        $arr = [
             'status'=>1,
             'msg'=>'123123 test',
         ];
+        print_r($arr);
+
+        return $arr;
     }
 }

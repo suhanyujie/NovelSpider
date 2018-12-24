@@ -12,6 +12,7 @@ use \Workerman\Worker;
 use Workerman\WebServer;
 use Workerman\Protocols\Http;
 use Libs\Core\Route\Router;
+use NoahBuscher\Macaw\Macaw;
 
 $encConfig = parse_ini_file(__DIR__ . "/../../.env");
 
@@ -40,10 +41,15 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent) {
     //此处，针对请求数据，路由匹配
     $refer = $data['server']['HTTP_REFERER'] ?? '';
     $responseStr = 'hello world!';
-    $result = Router::match(['get','match'],'Access','LoginController@login');
-    if (is_array($result)) {
-        $responseStr = json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    }
+//    $result = Router::match(['get','match'],'Access','LoginController@login');
+//    if (is_array($result)) {
+//        $responseStr = json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+//    }
+    ob_start();
+    Macaw::get('/', 'Novel\Controllers\Access\LoginController@login');
+    Macaw::dispatch();
+    $responseStr = ob_get_contents();
+    ob_end_clean();
 
     $connection->send($responseStr);
 };
