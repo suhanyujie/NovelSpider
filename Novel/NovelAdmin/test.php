@@ -27,8 +27,13 @@ $apiPort = isset($encConfig['API_SITE_PORT'])&&$encConfig['API_SITE_PORT'] ? $en
 $apiServ = new Worker('http://0.0.0.0:'.$apiPort);
 $apiServ->count = 2;
 $iconContent = file_get_contents(__DIR__.'/../../Frontend/favicon.ico');
+
+$apiServ->onWorkerStart = function () {
+    Macaw::get('/', 'Novel\Controllers\Access\LoginController@login');
+};
+
 $apiServ->onMessage = function ($connection, $data)use($iconContent) {
-    //处理 favicon.ico 文件
+    //1.处理 favicon.ico 文件
     if (isset($data['server']['REQUEST_URI']) &&
         strpos($data['server']['REQUEST_URI'],'favicon.ico') !== false)
     {
@@ -38,18 +43,18 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent) {
         $connection->send($iconContent);
         return;
     }
-    //此处，针对请求数据，路由匹配
+    //2.针对请求，路由处理
     $refer = $data['server']['HTTP_REFERER'] ?? '';
     $responseStr = 'hello world!';
 //    $result = Router::match(['get','match'],'Access','LoginController@login');
 //    if (is_array($result)) {
 //        $responseStr = json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 //    }
+
     ob_start();
-    Macaw::get('/', 'Novel\Controllers\Access\LoginController@login');
     Macaw::dispatch();
-    $responseStr = ob_get_contents();
-    ob_end_clean();
+    $responseStr = ob_get_clean();
+    var_dump($responseStr);
 
     $connection->send($responseStr);
 };

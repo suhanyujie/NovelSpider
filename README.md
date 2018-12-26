@@ -30,6 +30,9 @@ php App/NovelAdmin/test.php start;
 * 更新workerman的软件包 `composer update workerman/workerman`
 * 截止20181102，目前已经将数据的orm改为 `laravel` 的 `Illuminate database`，详细使用可以参考[官方库](https://github.com/illuminate/database)的文档示例
 
+### php路由库Macaw
+* 添加路由时，记得放在onWorkerStart的回调中，因为如果针对同一个uri添加n个路由处理时，请求到来时，会被处理n次
+
 
 ## 关于爬取小说的一些思路
 ### 列表爬虫思路：
