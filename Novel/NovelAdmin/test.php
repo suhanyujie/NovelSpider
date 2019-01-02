@@ -29,7 +29,10 @@ $apiServ->count = 2;
 $iconContent = file_get_contents(__DIR__.'/../../Frontend/favicon.ico');
 
 $apiServ->onWorkerStart = function () {
+    //加载路由
     Macaw::get('/', 'Novel\Controllers\Access\LoginController@login');
+    //加载和初始化配置相关
+
 };
 
 $apiServ->onMessage = function ($connection, $data)use($iconContent) {
