@@ -22,9 +22,6 @@ class Db
         'dbname'  => 'bbs_test',
         'charset'    => 'utf8',
     );
-
-
-
 }
 
 
