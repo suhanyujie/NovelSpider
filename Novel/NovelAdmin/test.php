@@ -20,13 +20,13 @@ define('ROOT', realpath(__DIR__.'/../../'));
 $envConfig = parse_ini_file(__DIR__ . "/../../.env", true);
 
 //配置web服务器
-$port = isset($envConfig['WEB_SITE_PORT']) && $envConfig['WEB_SITE_PORT'] ? $envConfig['WEB_SITE_PORT'] : 8080;
+$port = $envConfig['WEB_SITE_PORT'] ?? 8080;
 $web  = new WebServer('http://0.0.0.0:' . $port);
 $web->addRoot($envConfig['web']['host'], __DIR__ . '/../../Frontend/dist');
 $web->count = 3;
 
 //配置接口服务器，用于处理接口访问
-$apiPort = isset($envConfig['API_SITE_PORT'])&&$envConfig['API_SITE_PORT'] ? $envConfig['API_SITE_PORT'] : 8081;
+$apiPort = $envConfig['API_SITE_PORT'] ?? 8081;
 $apiServ = new Worker('http://0.0.0.0:'.$apiPort);
 $apiServ->name = 'apiServer';
 $apiServ->count = 2;
