@@ -6,7 +6,7 @@
  * Time: 上午9:34
  */
 
-require __DIR__ . "/../../vendor/autoload.php";
+require_once __DIR__ . "/../../vendor/autoload.php";
 
 use \Workerman\Worker;
 use Workerman\WebServer;
@@ -14,21 +14,27 @@ use Workerman\Protocols\Http;
 use Libs\Core\Route\Router;
 use NoahBuscher\Macaw\Macaw;
 
-$encConfig = parse_ini_file(__DIR__ . "/../../.env");
+//定义全局常量
+define('ROOT', realpath(__DIR__.'/../../'));
+//解析配置文件
+$envConfig = parse_ini_file(__DIR__ . "/../../.env", true);
 
-$port = isset($encConfig['WEB_SITE_PORT'])&&$encConfig['WEB_SITE_PORT'] ? $encConfig['WEB_SITE_PORT'] : 8080;
-$web = new WebServer('http://0.0.0.0:'.$port);
-$web->addRoot('suhy.zyw.com',__DIR__.'/../../Frontend/dist');
+//配置web服务器
+$port = isset($envConfig['WEB_SITE_PORT']) && $envConfig['WEB_SITE_PORT'] ? $envConfig['WEB_SITE_PORT'] : 8080;
+$web  = new WebServer('http://0.0.0.0:' . $port);
+$web->addRoot($envConfig['web']['host'], __DIR__ . '/../../Frontend/dist');
 $web->count = 3;
 
-//接口访问
-//针对请求做处理
-$apiPort = isset($encConfig['API_SITE_PORT'])&&$encConfig['API_SITE_PORT'] ? $encConfig['API_SITE_PORT'] : 8081;
+//配置接口服务器，用于处理接口访问
+$apiPort = isset($envConfig['API_SITE_PORT'])&&$envConfig['API_SITE_PORT'] ? $envConfig['API_SITE_PORT'] : 8081;
 $apiServ = new Worker('http://0.0.0.0:'.$apiPort);
+$apiServ->name = 'apiServer';
 $apiServ->count = 2;
 $iconContent = file_get_contents(__DIR__.'/../../Frontend/favicon.ico');
 
 $apiServ->onWorkerStart = function () {
+    //加载全局辅助函数
+    require_once ROOT.'/Libs/Helper/functions.php';
     //加载路由
     require_once __DIR__.'/../Routes/routes.php';
     //加载和初始化配置相关

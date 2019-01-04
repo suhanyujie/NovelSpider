@@ -12,13 +12,14 @@ use Novel\Controllers\Controller;
 
 class LoginController extends Controller
 {
-    public function login()
+    public function login(Request $request)
     {
+        var_dump($request);
         $arr = [
             'status'=>1,
             'msg'=>'123123 test',
         ];
-        print_r($arr);
+        //print_r($arr);
 
         return $arr;
     }
