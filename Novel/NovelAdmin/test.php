@@ -30,7 +30,7 @@ $iconContent = file_get_contents(__DIR__.'/../../Frontend/favicon.ico');
 
 $apiServ->onWorkerStart = function () {
     //加载路由
-    Macaw::get('/', 'Novel\Controllers\Access\LoginController@login');
+    require_once __DIR__.'/../Routes/routes.php';
     //加载和初始化配置相关
 
 };
