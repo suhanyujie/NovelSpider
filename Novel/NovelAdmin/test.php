@@ -39,6 +39,8 @@ $apiServ->onWorkerStart = function () {
     require_once __DIR__.'/../Routes/routes.php';
     //加载和初始化配置相关
 
+    //初始化数据库连接池
+
 };
 
 $apiServ->onMessage = function ($connection, $data)use($iconContent) {
