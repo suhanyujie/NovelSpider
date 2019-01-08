@@ -14,6 +14,7 @@ use Workerman\Protocols\Http;
 use Libs\Core\Route\Router;
 use NoahBuscher\Macaw\Macaw;
 use GuzzleHttp\Psr7\Request;
+use Libs\Core\Container\Application;
 
 //定义全局常量
 define('ROOT', realpath(__DIR__.'/../../'));
@@ -28,12 +29,14 @@ $web->count = 3;
 
 //配置接口服务器，用于处理接口访问
 $apiPort = $envConfig['API_SITE_PORT'] ?? 8081;
-$apiServ = new Worker('http://0.0.0.0:'.$apiPort);
+$apiServ = new Worker('tcp://0.0.0.0:'.$apiPort);
 $apiServ->name = 'apiServer';
 $apiServ->count = 2;
 $iconContent = file_get_contents(__DIR__.'/../../Frontend/favicon.ico');
 
-$apiServ->onWorkerStart = function () {
+$app = new Application();
+
+$apiServ->onWorkerStart = function ()use($app) {
     //加载全局辅助函数
     require_once ROOT.'/Libs/Helper/functions.php';
     //加载路由
@@ -42,9 +45,14 @@ $apiServ->onWorkerStart = function () {
 
     //初始化数据库连接池
 
+    //初始化服务提供者
+//    $app->bind();
+
 };
 
 $apiServ->onMessage = function ($connection, $data)use($iconContent) {
+    var_dump($data);
+    return;
     //1.处理 favicon.ico 文件
     if (isset($data['server']['REQUEST_URI']) &&
         strpos($data['server']['REQUEST_URI'],'favicon.ico') !== false)
@@ -56,6 +64,14 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent) {
         return;
     }
     //通过http数据，实例化符合psr7的Request
+    $request = new Request(
+        ($data['server']['REQUEST_METHOD'] ?? ''),
+        ($data['server']['REQUEST_URI'] ?? ''),
+        [],
+        ""
+    );
+    var_dump($request);
+    return;
 
     //针对请求，路由处理
     $refer = $data['server']['HTTP_REFERER'] ?? '';
