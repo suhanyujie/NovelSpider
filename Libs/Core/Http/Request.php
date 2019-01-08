@@ -22,6 +22,14 @@ class Request implements RequestInterface
     private $stream;
 
     /**
+     * @desc 实例化时，将http相关数据进行对应的加载
+     */
+    public function __construct($data)
+    {
+
+    }
+
+    /**
      * Retrieves the HTTP protocol version as a string.
      * 获取HTTP协议的版本的字符串
      * The string MUST contain only the HTTP version number (e.g., "1.1", "1.0").

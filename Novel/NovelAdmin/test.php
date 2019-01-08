@@ -13,6 +13,7 @@ use Workerman\WebServer;
 use Workerman\Protocols\Http;
 use Libs\Core\Route\Router;
 use NoahBuscher\Macaw\Macaw;
+use GuzzleHttp\Psr7\Request;
 
 //定义全局常量
 define('ROOT', realpath(__DIR__.'/../../'));
@@ -54,7 +55,9 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent) {
         $connection->send($iconContent);
         return;
     }
-    //2.针对请求，路由处理
+    //通过http数据，实例化符合psr7的Request
+
+    //针对请求，路由处理
     $refer = $data['server']['HTTP_REFERER'] ?? '';
     $responseStr = 'hello world!';
 //    $result = Router::match(['get','match'],'Access','LoginController@login');
