@@ -27,7 +27,7 @@ $port = $envConfig['WEB_SITE_PORT'] ?? 8080;
 $web  = new WebServer('http://0.0.0.0:' . $port);
 $web->addRoot($envConfig['web']['host'], __DIR__ . '/../../Frontend/dist');
 $web->count = 3;
-$web->protocol = 'http';
+//$web->protocol = 'http';
 
 //配置接口服务器，用于处理接口访问
 $apiPort = $envConfig['API_SITE_PORT'] ?? 8081;
