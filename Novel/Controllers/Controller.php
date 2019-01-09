@@ -9,7 +9,16 @@
 namespace Novel\Controllers;
 
 
-class Controller
-{
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 
+abstract class Controller
+{
+    /**
+     * @desc
+     */
+    public function __construct(Request $request, Response $response)
+    {
+
+    }
 }

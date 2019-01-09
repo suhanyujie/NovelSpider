@@ -14,6 +14,7 @@ use Workerman\Protocols\Http;
 use Libs\Core\Route\Router;
 use NoahBuscher\Macaw\Macaw;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use Libs\Core\Container\Application;
 
 //定义全局常量
@@ -26,6 +27,7 @@ $port = $envConfig['WEB_SITE_PORT'] ?? 8080;
 $web  = new WebServer('http://0.0.0.0:' . $port);
 $web->addRoot($envConfig['web']['host'], __DIR__ . '/../../Frontend/dist');
 $web->count = 3;
+$web->protocol = 'http';
 
 //配置接口服务器，用于处理接口访问
 $apiPort = $envConfig['API_SITE_PORT'] ?? 8081;
@@ -46,32 +48,40 @@ $apiServ->onWorkerStart = function ()use($app) {
     //初始化数据库连接池
 
     //初始化服务提供者
-//    $app->bind();
+
 
 };
 
-$apiServ->onMessage = function ($connection, $data)use($iconContent) {
-    var_dump($data);
-    return;
+$apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
+    //通过http数据，实例化符合psr7的Request
+    $request = \GuzzleHttp\Psr7\parse_request($data);
     //1.处理 favicon.ico 文件
-    if (isset($data['server']['REQUEST_URI']) &&
-        strpos($data['server']['REQUEST_URI'],'favicon.ico') !== false)
-    {
+    if (
+        strpos($request->getUri()->getPath(),'favicon.ico') !== false
+    ) {
         $file_size = filesize(__DIR__.'/../../Frontend/favicon.ico');
         Http::header('Content-Type: image/x-icon');
         Http::header("Content-Length: $file_size");
         $connection->send($iconContent);
         return;
     }
-    //通过http数据，实例化符合psr7的Request
-    $request = new Request(
-        ($data['server']['REQUEST_METHOD'] ?? ''),
-        ($data['server']['REQUEST_URI'] ?? ''),
-        [],
-        ""
-    );
-    var_dump($request);
-    return;
+    $app->bind(Request::class, function()use($data) {
+        $request = \GuzzleHttp\Psr7\parse_request($data);
+        //初始化全局变量 $_SERVER
+        $_SERVER['REQUEST_URI'] = $request->getUri()->getPath();
+        $_SERVER['REQUEST_METHOD'] = $request->getMethod();
+        $_SERVER['SERVER_PROTOCOL'] = $request->getProtocolVersion();
+
+        return $request;
+    });
+
+    $app->bind(Response::class, function()use($data) {
+        return new Response(200,
+                                    [],
+                                    "hello world..."
+                            );
+    });
+    $loginObj = $app->make(\Novel\Controllers\Access\LoginController::class);
 
     //针对请求，路由处理
     $refer = $data['server']['HTTP_REFERER'] ?? '';
@@ -84,9 +94,9 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent) {
     ob_start();
     Macaw::dispatch();
     $responseStr = ob_get_clean();
-    var_dump($responseStr);
 
     $connection->send($responseStr);
+    var_dump($responseStr);
 };
 
 Worker::runAll();
