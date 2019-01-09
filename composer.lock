@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2bfc594289b9ae8b2a19e262fdd82f0b",
+    "content-hash": "5ab67e1e949f26ca7fea53db7c2b0122",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -917,53 +917,6 @@
                 "routing"
             ],
             "time": "2018-02-13T20:26:39+00:00"
-        },
-        {
-            "name": "noahbuscher/macaw",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/noahbuscher/macaw.git",
-                "reference": "cf4dd15893f97539f3f91bb296e04324fbbb379e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/noahbuscher/macaw/zipball/cf4dd15893f97539f3f91bb296e04324fbbb379e",
-                "reference": "cf4dd15893f97539f3f91bb296e04324fbbb379e",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "require-dev": {
-                "guzzle/guzzle": "~3.9",
-                "phpunit/phpunit": "^4.8-stable"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "NoahBuscher\\Macaw\\": "./"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Noah Buscher",
-                    "email": "me@noahbuscher.com",
-                    "homepage": "http://noahbuscher.com/"
-                }
-            ],
-            "description": "Simple PHP router class.",
-            "homepage": "https://github.com/noahbuscher/Macaw",
-            "keywords": [
-                "php",
-                "php-router",
-                "router"
-            ],
-            "time": "2018-01-09T05:51:33+00:00"
         },
         {
             "name": "predis/predis",
@@ -3195,7 +3148,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "noahbuscher/macaw": 20,
         "eaglewu/swoole-ide-helper": 20
     },
     "prefer-stable": false,

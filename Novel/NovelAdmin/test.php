@@ -12,7 +12,6 @@ use \Workerman\Worker;
 use Workerman\WebServer;
 use Workerman\Protocols\Http;
 use Libs\Core\Route\Router;
-use NoahBuscher\Macaw\Macaw;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Libs\Core\Container\Application;
