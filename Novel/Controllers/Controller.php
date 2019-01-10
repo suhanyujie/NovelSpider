@@ -8,16 +8,15 @@
 
 namespace Novel\Controllers;
 
-
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
+use Zend\Diactoros\ServerRequest;
+use Zend\Diactoros\Response as ServerResponse;
 
 abstract class Controller
 {
     /**
      * @desc
      */
-    public function __construct(Request $request, Response $response)
+    public function __construct(ServerRequest $request, ServerResponse $response)
     {
 
     }

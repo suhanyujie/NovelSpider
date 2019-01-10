@@ -11,10 +11,13 @@ require_once __DIR__ . "/../../vendor/autoload.php";
 use \Workerman\Worker;
 use Workerman\WebServer;
 use Workerman\Protocols\Http;
-use Libs\Core\Route\Router;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
+//use Libs\Core\Route\Router;
+use Zend\Diactoros\ServerRequest;
+use GuzzleHttp\Psr7\Response as ServerResponse;
+use League\Route\Router;
+use Libs\Core\Store\Storage;
 use Libs\Core\Container\Application;
+use Libs\Core\Http\Tool as HttpTool;
 
 //定义全局常量
 define('ROOT', realpath(__DIR__.'/../../'));
@@ -53,7 +56,8 @@ $apiServ->onWorkerStart = function ()use($app) {
 
 $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
     //通过http数据，实例化符合psr7的Request
-    $request = \GuzzleHttp\Psr7\parse_request($data);
+//    $request = \GuzzleHttp\Psr7\parse_request($data);
+    $request = HttpTool::parseServerRequest($data);
     //1.处理 favicon.ico 文件
     if (
         strpos($request->getUri()->getPath(),'favicon.ico') !== false
@@ -64,23 +68,27 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
         $connection->send($iconContent);
         return;
     }
-    $app->bind(Request::class, function()use($data) {
-        $request = \GuzzleHttp\Psr7\parse_request($data);
-        //初始化全局变量 $_SERVER
-        $_SERVER['REQUEST_URI'] = $request->getUri()->getPath();
-        $_SERVER['REQUEST_METHOD'] = $request->getMethod();
-        $_SERVER['SERVER_PROTOCOL'] = $request->getProtocolVersion();
+    $app->bind(ServerRequest::class, function()use($data) {
+        $request = HttpTool::parseServerRequest($data);
 
         return $request;
     });
 
-    $app->bind(Response::class, function()use($data) {
-        return new Response(200,
-                                    [],
-                                    "hello world..."
-                            );
+    $app->bind(ServerResponse::class, function()use($data) {
+        return new ServerResponse(200,
+                            [],
+                            "hello world..."
+                    );
     });
-    $loginObj = $app->make(\Novel\Controllers\Access\LoginController::class);
+    if (is_null(Storage::$router)) {
+        Storage::$router =
+        $router = new Router();
+    } else {
+        $router = Storage::$router;
+    }
+
+
+    //$loginObj = $app->make(\Novel\Controllers\Access\LoginController::class);
 
     //针对请求，路由处理
     $refer = $data['server']['HTTP_REFERER'] ?? '';
@@ -90,12 +98,11 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
 //        $responseStr = json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 //    }
 
-    ob_start();
-    Macaw::dispatch();
-    $responseStr = ob_get_clean();
+    $response = $router->dispatch($request);
 
+
+    var_dump($response);
     $connection->send($responseStr);
-    var_dump($responseStr);
 };
 
 Worker::runAll();

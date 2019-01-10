@@ -11,7 +11,8 @@
       "lcobucci/jwt": "^3.2",
       "illuminate/container": "^5.7",
       "psr/http-message": "^1.0",
-      "league/route": "^4.2"
+      "league/route": "^4.2",
+      "zendframework/zend-diactoros": "^2.1"
 
    },
    "require-dev": {

@@ -43,7 +43,7 @@ php App/NovelAdmin/test.php start;
 * 新建一张表,防止每部小说的列表信息,一部小说只有一条 novel_main
 
 #### 一些记录
-* 引入league/route路由 20190109
+* 引入league/route路由，对应文档http://route.thephpleague.com/4.x/usage/   20190109
 * 添加前端界面展示 20181106
 * 更换出具库的查询工具 20181102
 * 建立好测试目录,引入phpunit 20170423
