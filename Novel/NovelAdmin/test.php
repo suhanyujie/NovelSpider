@@ -13,7 +13,7 @@ use Workerman\WebServer;
 use Workerman\Protocols\Http;
 //use Libs\Core\Route\Router;
 use Zend\Diactoros\ServerRequest;
-use GuzzleHttp\Psr7\Response as ServerResponse;
+use Zend\Diactoros\Response as ServerResponse;
 use League\Route\Router;
 use Libs\Core\Store\Storage;
 use Libs\Core\Container\Application;
@@ -68,13 +68,13 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
         $connection->send($iconContent);
         return;
     }
-    $app->bind(ServerRequest::class, function()use($data) {
+    $app->bind('ServerRequest', function()use($data) {
         $request = HttpTool::parseServerRequest($data);
 
         return $request;
     });
 
-    $app->bind(ServerResponse::class, function()use($data) {
+    $app->bind('ServerResponse', function()use($data) {
         return new ServerResponse(200,
                             [],
                             "hello world..."
