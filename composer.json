@@ -2,7 +2,6 @@
    "require": {
       "guzzlehttp/guzzle": "~6.0",
       "xiaoler/blade": "^0.2.2",
-      "indieteq/indieteq-php-my-sql-pdo-database-class":"~1.0",
       "workerman/workerman": "^3.3.9",
       "jaeger/querylist": "^4.0.3",
       "predis/predis": "^1.0",
@@ -33,7 +32,7 @@
    "repositories": {
       "packagist": {
          "type": "composer",
-         "url": "https://packagist.phpcomposer.com"
+         "url": "https://packagist.laravel-china.org"
       }
    }
 }

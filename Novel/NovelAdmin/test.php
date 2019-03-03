@@ -15,7 +15,7 @@ use Workerman\Protocols\Http;
 use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\Response as ServerResponse;
 use League\Route\Router;
-use Libs\Core\Store\Storage;
+use Libs\Core\Store\PrivateStorage;
 use Libs\Core\Container\Application;
 use Libs\Core\Http\Tool as HttpTool;
 
@@ -35,9 +35,10 @@ $web->count = 3;
 $apiPort = $envConfig['API_SITE_PORT'] ?? 8081;
 $apiServ = new Worker('tcp://0.0.0.0:'.$apiPort);
 $apiServ->name = 'apiServer';
-$apiServ->count = 2;
+$apiServ->count = 1;
 $iconContent = file_get_contents(__DIR__.'/../../Frontend/favicon.ico');
 
+PrivateStorage::$container =
 $app = new Application();
 
 $apiServ->onWorkerStart = function ()use($app) {
@@ -50,7 +51,7 @@ $apiServ->onWorkerStart = function ()use($app) {
     //初始化数据库连接池
 
     //初始化服务提供者
-
+    $app->bind(Router::class, Router::class);
 
 };
 
@@ -75,18 +76,19 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
     });
 
     $app->bind('ServerResponse', function()use($data) {
-        return new ServerResponse(200,
-                            [],
-                            "hello world..."
-                    );
+        return (new ServerResponse("hello world",
+                    200,
+                    []
+                ));
     });
-    if (is_null(Storage::$router)) {
-        Storage::$router =
-        $router = new Router();
-    } else {
-        $router = Storage::$router;
-    }
 
+
+    if (is_null(PrivateStorage::$router)) {
+        PrivateStorage::$router =
+        $router = $app->make(Router::class);
+    } else {
+        $router = PrivateStorage::$router;
+    }
 
     //$loginObj = $app->make(\Novel\Controllers\Access\LoginController::class);
 
@@ -99,10 +101,11 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
 //    }
 
     $response = $router->dispatch($request);
+//    $responseStr = $response->getBody()->read(1024);
+    echo $response->getBody();
 
-
-    var_dump($response);
-    $connection->send($responseStr);
+//    var_dump($responseStr);
+    $connection->send("hello...\n");
 };
 
 Worker::runAll();

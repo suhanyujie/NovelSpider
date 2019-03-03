@@ -9,18 +9,25 @@
 namespace Novel\Controllers\Access;
 
 use Novel\Controllers\Controller;
+use Zend\Diactoros\Response as ServerResponse;
 
 class LoginController extends Controller
 {
-    public function login(Request $request)
+    public function login()
     {
-        var_dump($request);
+        $request = $this->request;
         $arr = [
             'status'=>1,
             'msg'=>'123123 test',
         ];
+        $responseStr = json_encode($arr, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE);
+        $response = new ServerResponse($responseStr,
+            200,
+            []
+        );
+
         //print_r($arr);
 
-        return $arr;
+        return $response;
     }
 }

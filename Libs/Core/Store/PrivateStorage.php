@@ -8,12 +8,18 @@
 
 namespace Libs\Core\Store;
 
+use Illuminate\Container\Container;
 use League\Route\Router;
 
-class Storage
+class PrivateStorage
 {
     /**
      * @var Router
      */
     public static $router = null;
+
+    /**
+     * @var Container
+     */
+    public static $container = null;
 }

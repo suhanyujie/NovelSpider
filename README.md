@@ -2,7 +2,7 @@
 * 爬取小说,练练手
 
 ## 类库
-* mysql采用pdo类库,来自第三方.https://github.com/indieteq/indieteq-php-my-sql-pdo-database-class
+* 数据库orm，使用`illuminate/database`
 * workerman框架,来自第三方. https://github.com/walkor/Workerman
 * DOM解析,来自第三方.http://doc.querylist.cc/
 * 前端界面[iview-admin](https://github.com/iview/iview-admin)
@@ -43,6 +43,7 @@ php App/NovelAdmin/test.php start;
 * 新建一张表,防止每部小说的列表信息,一部小说只有一条 novel_main
 
 #### 一些记录
+* 去除软件包`indieteq/indieteq-php-my-sql-pdo-database-class`，改用`illuminate/database`  20190303
 * 引入league/route路由，对应文档http://route.thephpleague.com/4.x/usage/   20190109
 * 添加前端界面展示 20181106
 * 更换出具库的查询工具 20181102
