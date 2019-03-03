@@ -18,6 +18,7 @@ use League\Route\Router;
 use Libs\Core\Store\PrivateStorage;
 use Libs\Core\Container\Application;
 use Libs\Core\Http\Tool as HttpTool;
+use Libs\Core\Http\Request as RequestTool;
 
 //定义全局常量
 define('ROOT', realpath(__DIR__.'/../../'));
@@ -33,7 +34,7 @@ $web->count = 3;
 
 //配置接口服务器，用于处理接口访问
 $apiPort = $envConfig['API_SITE_PORT'] ?? 8081;
-$apiServ = new Worker('tcp://0.0.0.0:'.$apiPort);
+$apiServ = new Worker('http://0.0.0.0:'.$apiPort);
 $apiServ->name = 'apiServer';
 $apiServ->count = 1;
 $iconContent = file_get_contents(__DIR__.'/../../Frontend/favicon.ico');
@@ -56,56 +57,23 @@ $apiServ->onWorkerStart = function ()use($app) {
 };
 
 $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
-    //通过http数据，实例化符合psr7的Request
-//    $request = \GuzzleHttp\Psr7\parse_request($data);
-    $request = HttpTool::parseServerRequest($data);
-    //1.处理 favicon.ico 文件
-    if (
-        strpos($request->getUri()->getPath(),'favicon.ico') !== false
-    ) {
-        $file_size = filesize(__DIR__.'/../../Frontend/favicon.ico');
-        Http::header('Content-Type: image/x-icon');
-        Http::header("Content-Length: $file_size");
+    if (empty($data['server']['REQUEST_URI'])) {
+        $connection->send('404');
+        return;
+    }
+    //判断是否是网站icon
+    $ext = pathinfo($data['server']['REQUEST_URI'],PATHINFO_EXTENSION);
+    if ($ext === 'ico') {
         $connection->send($iconContent);
         return;
     }
-    $app->bind('ServerRequest', function()use($data) {
-        $request = HttpTool::parseServerRequest($data);
+    $requestUri = $data['server']['REQUEST_URI'];
+    //根据uri解析对应的控制器和方法名称
+    $controllerInfo = RequestTool::getControllerInfo($requestUri);
+    $controller = RequestTool::getControllerIns($controllerInfo['cPath']);
+    $result = $controller->{$controllerInfo['a']}();
+    $connection->send($result);
 
-        return $request;
-    });
-
-    $app->bind('ServerResponse', function()use($data) {
-        return (new ServerResponse("hello world",
-                    200,
-                    []
-                ));
-    });
-
-
-    if (is_null(PrivateStorage::$router)) {
-        PrivateStorage::$router =
-        $router = $app->make(Router::class);
-    } else {
-        $router = PrivateStorage::$router;
-    }
-
-    //$loginObj = $app->make(\Novel\Controllers\Access\LoginController::class);
-
-    //针对请求，路由处理
-    $refer = $data['server']['HTTP_REFERER'] ?? '';
-    $responseStr = 'hello world!';
-//    $result = Router::match(['get','match'],'Access','LoginController@login');
-//    if (is_array($result)) {
-//        $responseStr = json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-//    }
-
-    $response = $router->dispatch($request);
-//    $responseStr = $response->getBody()->read(1024);
-    echo $response->getBody();
-
-//    var_dump($responseStr);
-    $connection->send("hello...\n");
 };
 
 Worker::runAll();

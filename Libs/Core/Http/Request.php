@@ -29,6 +29,49 @@ class Request implements RequestInterface
 
     }
 
+    //workerman中将uri信息解析为控制器和方法名
+    public static function getControllerInfo($uri='')
+    {
+        $arr = explode('?', $uri);
+        $uri = trim($arr[0],'/');
+        $action = substr($uri, strrpos($uri,'/')+1);
+        $reqArr = explode('/', $uri);
+        array_pop($reqArr);
+        $conPath = "";
+        if (count($reqArr) > 1) {
+            $len = count($reqArr);
+            foreach ($reqArr as $k=>$item) {
+                $item = ucwords($item);
+                if ($k == ($len-1)) {
+                    $conPath .= "/{$item}Controller";
+                    break;
+                }
+                $conPath .= "/{$item}";
+            }
+        }
+        $retArr = [
+            'c'     => $reqArr[0] ?? '',
+            'a'     => strtolower($action) ?? '',
+            'cPath' => $conPath,
+        ];
+
+        return $retArr;
+    }
+
+
+    /**
+     * @desc 获取实例化控制器
+     */
+    public static function getControllerIns($cPath='')
+    {
+        $basePath = ROOT."/Novel/Controllers";
+        $baseNamespace = "Novel\Controllers";
+        $className = sprintf("%s%s", $baseNamespace,str_replace('/','\\', $cPath));
+        $controllerIns = new $className();
+
+        return $controllerIns;
+    }
+
     /**
      * Retrieves the HTTP protocol version as a string.
      * 获取HTTP协议的版本的字符串
