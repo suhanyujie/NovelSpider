@@ -11,6 +11,7 @@ namespace Libs\Core\Http;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Libs\Core\Http\Request as RequestTool;
 
 class Request implements RequestInterface
 {
@@ -24,9 +25,22 @@ class Request implements RequestInterface
     /**
      * @desc 实例化时，将http相关数据进行对应的加载
      */
-    public function __construct($data)
+    public function __construct($data=[])
     {
 
+    }
+
+    public function handleRequest($requestUri='')
+    {
+        try {
+            $controllerInfo = RequestTool::getControllerInfo($requestUri);
+            $controller = RequestTool::getControllerIns($controllerInfo['cPath']);
+            $result = $controller->{$controllerInfo['a']}();
+        }catch (\Exception $e) {
+            return ['status'=>$e->getCode(),'msg'=>$e->getMessage()];
+        }
+
+        return $result;
     }
 
     //workerman中将uri信息解析为控制器和方法名

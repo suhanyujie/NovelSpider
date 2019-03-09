@@ -51,15 +51,6 @@ class Tool
             $version
         );
 
-
-//        $request = new ServerRequest(
-//            $parts[0],
-//            $matches[1] === '/' ? _parse_request_uri($parts[1], $data['headers']) : $parts[1],
-//            $data['headers'],
-//            $data['body'],
-//            $version
-//        );
-
         return $matches[1] === '/' ? $request : $request->withRequestTarget($parts[1]);
     }
 }

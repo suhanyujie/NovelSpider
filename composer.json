@@ -1,5 +1,6 @@
 {
    "require": {
+      "php":">=7.1",
       "guzzlehttp/guzzle": "~6.0",
       "xiaoler/blade": "^0.2.2",
       "workerman/workerman": "^3.3.9",

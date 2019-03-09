@@ -11,13 +11,10 @@ require_once __DIR__ . "/../../vendor/autoload.php";
 use \Workerman\Worker;
 use Workerman\WebServer;
 use Workerman\Protocols\Http;
-//use Libs\Core\Route\Router;
 use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\Response as ServerResponse;
-use League\Route\Router;
 use Libs\Core\Store\PrivateStorage;
 use Libs\Core\Container\Application;
-use Libs\Core\Http\Tool as HttpTool;
 use Libs\Core\Http\Request as RequestTool;
 
 //定义全局常量
@@ -30,7 +27,6 @@ $port = $envConfig['WEB_SITE_PORT'] ?? 8080;
 $web  = new WebServer('http://0.0.0.0:' . $port);
 $web->addRoot($envConfig['web']['host'], __DIR__ . '/../../Frontend/dist');
 $web->count = 3;
-//$web->protocol = 'http';
 
 //配置接口服务器，用于处理接口访问
 $apiPort = $envConfig['API_SITE_PORT'] ?? 8081;
@@ -52,11 +48,11 @@ $apiServ->onWorkerStart = function ()use($app) {
     //初始化数据库连接池
 
     //初始化服务提供者
-    $app->bind(Router::class, Router::class);
-
+    // $app->bind(Router::class, Router::class);
 };
 
 $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
+    var_dump($connection,$data);
     if (empty($data['server']['REQUEST_URI'])) {
         $connection->send('404');
         return;
@@ -69,11 +65,9 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
     }
     $requestUri = $data['server']['REQUEST_URI'];
     //根据uri解析对应的控制器和方法名称
-    $controllerInfo = RequestTool::getControllerInfo($requestUri);
-    $controller = RequestTool::getControllerIns($controllerInfo['cPath']);
-    $result = $controller->{$controllerInfo['a']}();
-    $connection->send($result);
+    $response = (new RequestTool)->handleRequest($requestUri);
 
+    $connection->send($response);
 };
 
 Worker::runAll();
