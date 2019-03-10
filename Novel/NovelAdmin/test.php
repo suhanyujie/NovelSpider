@@ -10,11 +10,10 @@ require_once __DIR__ . "/../../vendor/autoload.php";
 
 use \Workerman\Worker;
 use Workerman\WebServer;
-use Workerman\Protocols\Http;
 use Libs\Core\Store\PrivateStorage;
 use Libs\Core\Container\Application;
 use Libs\Core\Http\Request as RequestTool;
-use Libs\Core\Http\ConfigLoader;
+use Workerman\Protocols\Http;
 
 //定义全局常量
 define('ROOT', realpath(__DIR__.'/../../'));
@@ -32,7 +31,7 @@ $apiPort = $envConfig['API_SITE_PORT'] ?? 8081;
 $apiServ = new Worker('http://0.0.0.0:'.$apiPort);
 $apiServ->name = 'apiServer';
 $apiServ->count = 1;
-$iconContent = file_get_contents(__DIR__.'/../../Frontend/favicon.ico');
+$iconContent = file_get_contents(__DIR__.'/../../favicon.ico');
 
 PrivateStorage::$container =
 $app = new Application();
@@ -59,6 +58,7 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
     //判断是否是网站icon
     $ext = pathinfo($data['server']['REQUEST_URI'],PATHINFO_EXTENSION);
     if ($ext === 'ico') {
+        Http::header('Content-type:image/icon');
         $connection->send($iconContent);
         return;
     }
