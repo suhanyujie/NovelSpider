@@ -12,6 +12,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Libs\Core\Http\Request as RequestTool;
+use Libs\Core\Http\ConfigLoader;
 
 class Request implements RequestInterface
 {
@@ -46,9 +47,15 @@ class Request implements RequestInterface
     //workerman中将uri信息解析为控制器和方法名
     public static function getControllerInfo($uri='')
     {
+        $defaultController = ConfigLoader::config('access.http@defaultController');
+        $defaultAction = ConfigLoader::config('access.http@defaultAction');
         $arr = explode('?', $uri);
         $uri = trim($arr[0],'/');
         $action = substr($uri, strrpos($uri,'/')+1);
+        $action = empty($action) ? $defaultAction : $action;
+        if (empty($uri)) {
+            $uri = "{$defaultController}/{$defaultAction}";
+        }
         $reqArr = explode('/', $uri);
         array_pop($reqArr);
         $conPath = "";
@@ -64,8 +71,8 @@ class Request implements RequestInterface
             }
         }
         $retArr = [
-            'c'     => $reqArr[0] ?? '',
-            'a'     => strtolower($action) ?? '',
+            'c'     => $reqArr[0] ?? $defaultController,
+            'a'     => strtolower($action) ?? $defaultAction,
             'cPath' => $conPath,
         ];
 
@@ -81,6 +88,10 @@ class Request implements RequestInterface
         $basePath = ROOT."/Novel/Controllers";
         $baseNamespace = "Novel\Controllers";
         $className = sprintf("%s%s", $baseNamespace,str_replace('/','\\', $cPath));
+        if (!class_exists($className)) {
+            throw new \Exception("controller {$className} not found!", -2);
+        }
+
         $controllerIns = new $className();
 
         return $controllerIns;

@@ -11,11 +11,10 @@ require_once __DIR__ . "/../../vendor/autoload.php";
 use \Workerman\Worker;
 use Workerman\WebServer;
 use Workerman\Protocols\Http;
-use Zend\Diactoros\ServerRequest;
-use Zend\Diactoros\Response as ServerResponse;
 use Libs\Core\Store\PrivateStorage;
 use Libs\Core\Container\Application;
 use Libs\Core\Http\Request as RequestTool;
+use Libs\Core\Http\ConfigLoader;
 
 //定义全局常量
 define('ROOT', realpath(__DIR__.'/../../'));
@@ -44,7 +43,7 @@ $apiServ->onWorkerStart = function ()use($app) {
     //加载路由
     require_once __DIR__.'/../Routes/routes.php';
     //加载和初始化配置相关
-
+    //$app->bind(Router::class, Router::class);
     //初始化数据库连接池
 
     //初始化服务提供者
@@ -52,7 +51,7 @@ $apiServ->onWorkerStart = function ()use($app) {
 };
 
 $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
-    var_dump($connection,$data);
+//    var_dump($connection,$data);
     if (empty($data['server']['REQUEST_URI'])) {
         $connection->send('404');
         return;
@@ -66,6 +65,9 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
     $requestUri = $data['server']['REQUEST_URI'];
     //根据uri解析对应的控制器和方法名称
     $response = (new RequestTool)->handleRequest($requestUri);
+    if (!is_string($response)) {
+        $response = json_encode($response, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    }
 
     $connection->send($response);
 };
