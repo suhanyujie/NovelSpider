@@ -26,6 +26,10 @@ npm run build;
 php App/NovelAdmin/test.php start;
 ```
 
+## 运行
+* 启动：`./start.sh start`
+* 停止：`./start.sh stop`
+
 ## 一些注意事项
 * 更新workerman的软件包 `composer update workerman/workerman`
 * 截止20181102，目前已经将数据的orm改为 `laravel` 的 `Illuminate database`，详细使用可以参考[官方库](https://github.com/illuminate/database)的文档示例

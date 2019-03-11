@@ -2,23 +2,20 @@
 /**
  * Created by PhpStorm.
  * User: suhanyu
- * Date: 18/11/6
- * Time: 上午11:56
+ * Date: 18/4/22
+ * Time: 上午9:34
  */
-
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 
 use \Workerman\Worker;
 use Workerman\WebServer;
 use Workerman\Protocols\Http;
-//use Libs\Core\Route\Router;
 use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\Response as ServerResponse;
-use League\Route\Router;
 use Libs\Core\Store\PrivateStorage;
 use Libs\Core\Container\Application;
-use Libs\Core\Http\Tool as HttpTool;
+use Libs\Core\Http\Request as RequestTool;
 
 //定义全局常量
 define('ROOT', realpath(__DIR__.'/../../'));
@@ -30,7 +27,6 @@ $port = $envConfig['WEB_SITE_PORT'] ?? 8080;
 $web  = new WebServer('http://0.0.0.0:' . $port);
 $web->addRoot($envConfig['web']['host'], __DIR__ . '/../../Frontend/dist');
 $web->count = 3;
-//$web->protocol = 'http';
 
 //配置接口服务器，用于处理接口访问
 $apiPort = $envConfig['API_SITE_PORT'] ?? 8081;
@@ -52,63 +48,26 @@ $apiServ->onWorkerStart = function ()use($app) {
     //初始化数据库连接池
 
     //初始化服务提供者
-    $app->bind(Router::class, Router::class);
-
+    // $app->bind(Router::class, Router::class);
 };
 
 $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
-    //通过http数据，实例化符合psr7的Request
-//    $request = \GuzzleHttp\Psr7\parse_request($data);
-    var_dump($data);
-    //1.处理 favicon.ico 文件
-    if (
-    false
-    ) {
-        $file_size = filesize(__DIR__.'/../../Frontend/favicon.ico');
-        Http::header('Content-Type: image/x-icon');
-        Http::header("Content-Length: $file_size");
+    var_dump($connection,$data);
+    if (empty($data['server']['REQUEST_URI'])) {
+        $connection->send('404');
+        return;
+    }
+    //判断是否是网站icon
+    $ext = pathinfo($data['server']['REQUEST_URI'],PATHINFO_EXTENSION);
+    if ($ext === 'ico') {
         $connection->send($iconContent);
         return;
     }
-    $app->bind('ServerRequest', function()use($data) {
-        $request = HttpTool::parseServerRequest($data);
+    $requestUri = $data['server']['REQUEST_URI'];
+    //根据uri解析对应的控制器和方法名称
+    $response = (new RequestTool)->handleRequest($requestUri);
 
-        return $request;
-    });
-
-    $app->bind('ServerResponse', function()use($data) {
-        return (new ServerResponse("hello world",
-            200,
-            []
-        ));
-    });
-
-
-    if (is_null(PrivateStorage::$router)) {
-        PrivateStorage::$router =
-        $router = $app->make(Router::class);
-    } else {
-        $router = PrivateStorage::$router;
-    }
-
-    //$loginObj = $app->make(\Novel\Controllers\Access\LoginController::class);
-
-    //针对请求，路由处理
-    $refer = $data['server']['HTTP_REFERER'] ?? '';
-    $responseStr = 'hello world!';
-//    $result = Router::match(['get','match'],'Access','LoginController@login');
-//    if (is_array($result)) {
-//        $responseStr = json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-//    }
-
-    $response = $router->dispatch($request);
-//    $res = $response->getBody()->write("hello string");
-    var_dump((string)$response);
-//    $responseStr = $response->getBody()->read(1024);
-//    echo $response->getBody();
-
-//    var_dump($responseStr);
-    $connection->send("hello...\n");
+    $connection->send($response);
 };
 
 Worker::runAll();
