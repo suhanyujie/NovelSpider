@@ -34,8 +34,8 @@ class MainListController extends Controller
         ];
 
         return [
-            'status'=>1,
-            'data'=>$dataArr,
+            'status' => 1,
+            'data'   => $dataArr,
         ];
     }
 }
