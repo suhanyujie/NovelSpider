@@ -8,12 +8,13 @@
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 
-use \Workerman\Worker;
-use Workerman\WebServer;
-use Libs\Core\Store\PrivateStorage;
 use Libs\Core\Container\Application;
 use Libs\Core\Http\Request as RequestTool;
+use Libs\Core\Store\PrivateStorage;
 use Workerman\Protocols\Http;
+use Workerman\WebServer;
+use Workerman\Worker;
+use Libs\Core\Http\Response;
 
 //定义全局常量
 define('ROOT', realpath(__DIR__.'/../../'));
@@ -50,7 +51,14 @@ $apiServ->onWorkerStart = function ()use($app) {
 };
 
 $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
-//    var_dump($connection,$data);
+    // 针对OPTIONS请求 做处理
+    if (isset($data['server']['REQUEST_METHOD']) && $data['server']['REQUEST_METHOD'] == 'OPTIONS') {
+        Response::setAccessAllowHeader();
+        $connection->send(json_encode([
+            'status' => 1,
+            'msg'    => 'ok',
+        ]));
+    }
     if (empty($data['server']['REQUEST_URI'])) {
         $connection->send('404');
         return;
@@ -66,7 +74,9 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
     //根据uri解析对应的控制器和方法名称
     $response = (new RequestTool)->handleRequest($requestUri);
     if (!is_string($response)) {
+        Response::setAccessAllowHeader();
         $response = json_encode($response, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+        Http::header('Content-length:'.strlen($response));
     }
 
     $connection->send($response);
