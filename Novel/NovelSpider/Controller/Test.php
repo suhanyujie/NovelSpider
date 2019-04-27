@@ -27,7 +27,7 @@ class Test
     {
         if (!$this->redisObj) {
             $backupParam    = [
-                'host'     => '127.0.0.1',
+                'host'     => '159.138.63.10',
                 'port'     => 6379,
                 'database' => 0,
             ];

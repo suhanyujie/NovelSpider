@@ -21,9 +21,9 @@ class NovelContentModel extends Model
         'chapter',
         'title',
         'content',
-        'worker_id',
-        'date',
         'err_flag',
+        'add_time',
+        'update_time',
     ];
 
     const UPDATED_AT = null;

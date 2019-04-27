@@ -10,19 +10,23 @@ require __DIR__."/../../vendor/autoload.php";
 
 use \Workerman\Worker;
 use \Workerman\Lib\Timer;
-
-use QL\QueryList;
 use Novel\NovelSpider\Controller\Test;
 use Predis\Client;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
+// 解析配置文件
+//定义全局常量
+define('ROOT', realpath(__DIR__.'/../../'));
+//解析配置文件
+$envConfig = parse_ini_file(ROOT . "/.env", true);
+$dbConfig = $envConfig['start_list_db'] ?? [];
 //数据库加载配置文件
 $database = [
     'driver'    => 'mysql',
-    'host'      => '127.0.0.1',
-    'database'  => 'bbs_test',
-    'username'  => 'root',
-    'password'  => '123456',
+    'host'      => $dbConfig['DB_HOST'],
+    'database'  => $dbConfig['DB_DATABASE'],
+    'username'  => $dbConfig['DB_USER'],
+    'password'  => $dbConfig['DB_PASSWORD'],
     'charset'   => 'utf8',
     'collation' => 'utf8_unicode_ci',
     'prefix'    => '',
@@ -31,6 +35,14 @@ $capsule = new Capsule;
 $capsule->addConnection($database);
 $capsule->setAsGlobal();
 $capsule->bootEloquent();
+
+// 检测redis连接是否通畅
+try {
+    $redis   = new Predis\Client();
+}catch (\Exception $e) {
+    echo "redis启动异常：\n";
+    echo ($e->getMessage());die;
+}
 
 // 开启worker专门分发任务url数据
 $listTask = new Worker('Text://0.0.0.0:3001');
