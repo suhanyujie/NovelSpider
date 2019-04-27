@@ -1,6 +1,9 @@
 # NovelSpider
 * 爬取小说,练练手
 
+## 环境
+* `*Unix`环境
+
 ## 类库
 * 数据库orm，使用`illuminate/database`
 * workerman框架,来自第三方. https://github.com/walkor/Workerman
