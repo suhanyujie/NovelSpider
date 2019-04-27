@@ -46,6 +46,7 @@ php App/NovelAdmin/test.php start;
 * 新建一张表,防止每部小说的列表信息,一部小说只有一条 novel_main
 
 #### 一些记录
+* dom解析使用一个[dom解析服务](https://github.com/suhanyujie/practice/tree/master/htmlParserServer)  20190406
 * 实现和前端NovelSpiderFrontend的简单交互                                     20190405
 * 去除软件包`indieteq/indieteq-php-my-sql-pdo-database-class`，改用`illuminate/database`  20190303
 * 引入league/route路由，对应文档http://route.thephpleague.com/4.x/usage/   20190109
