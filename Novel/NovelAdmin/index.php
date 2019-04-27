@@ -4,6 +4,9 @@
  * User: suhanyu
  * Date: 18/4/22
  * Time: 上午9:34
+ *
+ * 开启后台的web服务 包括接口，前端页面的访问服务 php Novel/NovelAdmin/index.php start
+ * 如果是守护进程方式启动，加上参数`-d`
  */
 
 require_once __DIR__ . "/../../vendor/autoload.php";
