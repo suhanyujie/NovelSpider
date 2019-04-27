@@ -9,6 +9,7 @@
 namespace Novel\NovelSpider\Models;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * Class NovelListModel
@@ -23,11 +24,17 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
  */
 class NovelListModel extends Eloquent
 {
+    /**
+     * @var Capsule
+     */
+    protected $capsule;
+
     protected $table = 'novel_list';
 
     protected $fillable = [
         'id',
         'novel_id',
+        'name',
         'url',
         'flag',
         'err_flag',
@@ -37,6 +44,17 @@ class NovelListModel extends Eloquent
 
     const UPDATED_AT = null;
     const CREATED_AT = null;
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->capsule = $capsule = new Capsule();
+    }
+
+    public function insertMul($dataArr = [])
+    {
+        return $this->capsule::table($this->table)->insert($dataArr);
+    }
 
     public function getList($paramArr=[])
     {

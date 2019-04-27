@@ -2,7 +2,7 @@
 /**
  * 关于数组转换的 辅助函数
  */
-namespace Tool\Helper;
+namespace Libs\Helper;
 
 
 class NumberTransfer {
