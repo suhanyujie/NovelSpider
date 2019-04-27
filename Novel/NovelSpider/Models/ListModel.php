@@ -1,4 +1,7 @@
 <?php
+/**
+ * 一个小说的实例化 【已废弃】
+ */
 namespace Novel\NovelSpider\Models;
 
 use Novel\NovelSpider\Models\MyDB;
