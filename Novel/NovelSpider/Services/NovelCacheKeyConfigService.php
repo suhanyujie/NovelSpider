@@ -11,5 +11,8 @@ namespace Novel\NovelSpider\Services;
 
 class NovelCacheKeyConfigService
 {
-
+    /**
+     * 小说列表的key
+     */
+    const NOVEL_LIST_KEY = "novel-list-key";
 }

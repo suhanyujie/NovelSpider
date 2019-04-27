@@ -17,6 +17,7 @@ class NovelContentModel extends Model
 
     protected $fillable = [
         'id',
+        'novel_id',
         'list_id',
         'chapter',
         'title',

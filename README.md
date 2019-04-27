@@ -45,6 +45,9 @@ php App/NovelAdmin/test.php start;
 #### 小说主表
 * 新建一张表,防止每部小说的列表信息,一部小说只有一条 novel_main
 
+##### 处理状态流程图
+* ![deal_status_transfer](./doc/images/deal_status_transfer.png)
+
 #### 一些记录
 * dom解析使用一个[dom解析服务](https://github.com/suhanyujie/practice/tree/master/htmlParserServer)  20190406
 * 实现和前端NovelSpiderFrontend的简单交互                                     20190405

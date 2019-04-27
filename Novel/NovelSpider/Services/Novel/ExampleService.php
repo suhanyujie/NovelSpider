@@ -11,7 +11,7 @@ namespace Novel\NovelSpider\Services\Novel;
 use Novel\NovelSpider\Controller\ListStore;
 use QL\QueryList;
 
-class ExamleService
+class ExampleService
 {
     public $mainUrl = 'http://www.xxbiquge.com/3_3482/';
     protected $baseUrl = 'http://www.xxbiquge.com/';

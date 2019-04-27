@@ -10,6 +10,17 @@ namespace Novel\NovelSpider\Models;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
+/**
+ * Class NovelListModel
+ * @property-write id
+ * @property-write novel_id
+ * @property-write url
+ * @property-write flag
+ * @property-write err_flag
+ * @property-write add_time
+ * @property-write update_time
+ * @package Novel\NovelSpider\Models
+ */
 class NovelListModel extends Eloquent
 {
     protected $table = 'novel_list';
@@ -20,6 +31,8 @@ class NovelListModel extends Eloquent
         'url',
         'flag',
         'err_flag',
+        'add_time',
+        'update_time',
     ];
 
     const UPDATED_AT = null;

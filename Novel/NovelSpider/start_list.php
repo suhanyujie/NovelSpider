@@ -13,6 +13,9 @@ use \Workerman\Lib\Timer;
 use Novel\NovelSpider\Controller\Test;
 use Predis\Client;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Novel\NovelSpider\Services\NovelCacheKeyConfigService;
+use Novel\NovelSpider\Models\NovelListModel;
+use Novel\NovelSpider\Models\NovelMainModel;
 
 // 解析配置文件
 //定义全局常量
@@ -48,28 +51,46 @@ try {
 $listTask = new Worker('Text://0.0.0.0:3001');
 $listTask->count = 1;
 $listTask->user = 'list-process';
-$listKey = 'novel-list-key';
+$listKey = NovelCacheKeyConfigService::NOVEL_LIST_KEY;
 $count = 0;
 $listTask->onWorkerStart = function($listTask)
 {
     //获取列表页的逻辑流程如下
     //根据小说id，去抓取列表页，看看列表页中的最新的章节数是否和已存的一致，如果不一致，则进行更新
-    $novel = new Test();
+    $novelService = new Test();
     //获取所有正要抓取列表内容的小说
-    $novels = $novel->getNovelList([
+    $novels = $novelService->getNovelList([
         'novel_status' => 1,
     ]);
+    if ($novels->count() < 1) {
+        $novel = new NovelMainModel();
+        $novel->name = "权力巅峰";
+        $novel->list_url = "https://www.biquge5.com/1_1216/";
+        $novel->base_url = "https://www.biquge5.com";
+        $novel->novel_status = 3;
+        $novel->insert_date = "https://www.biquge5.com";
+        $res = $novel->save();
+
+//        $oneOfList = new NovelListModel();
+//        $oneOfList->novel_id = 1;
+//        $oneOfList->url = "";
+//        $oneOfList->flag = 1;
+//        $oneOfList->add_time = date('Y-m-d H:i:s');
+//        $oneOfList->save();
+//        $novels = collect([$oneOfList]);
+    }
+    sleep(100);
     //针对每个小说 获取他们的列表页
-    $novels->map(function ($item) use ($novel) {
+    $novels->map(function ($item) use ($novelService) {
         $listKey = 'novel-list-key:' . $item->id;
         $redis   = new Predis\Client();
         $redis->del($listKey);
-        $res = $novel->getListFromMysql($item->id);
+        $res = $novelService->getListFromMysql($item->id);
         try {
             if (!$res) {
                 echo "Mysql中也没有尚未抓取的url啦~1\n";
             } else {
-                $pushResult = $novel->pushIntoRedis($res);
+                $pushResult = $novelService->pushIntoRedis($res);
             }
         } catch (\Exception $e) {
             echo $e->getMessage() . PHP_EOL;
