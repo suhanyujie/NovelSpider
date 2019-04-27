@@ -8,14 +8,12 @@
  */
 require __DIR__."/../../vendor/autoload.php";
 
-use \Workerman\Worker;
-use \Workerman\Lib\Timer;
-use Novel\NovelSpider\Controller\Test;
-use Predis\Client;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use Novel\NovelSpider\Services\NovelCacheKeyConfigService;
+use Novel\NovelSpider\Controller\Test;
 use Novel\NovelSpider\Models\NovelMainModel;
+use Novel\NovelSpider\Services\NovelCacheKeyConfigService;
 use Novel\NovelSpider\Services\NovelService;
+use Workerman\Worker;
 
 // 解析配置文件
 //定义全局常量
@@ -55,6 +53,7 @@ $listKey = NovelCacheKeyConfigService::NOVEL_LIST_KEY;
 $count = 0;
 $listTask->onWorkerStart = function($listTask)
 {
+    $currentTime = date('Y-m-d H:i:s');
     //获取列表页的逻辑流程如下
     //根据小说id，去抓取列表页，看看列表页中的最新的章节数是否和已存的一致，如果不一致，则进行更新
     $novelService = new NovelService();
@@ -64,13 +63,25 @@ $listTask->onWorkerStart = function($listTask)
         'limit'=>100,
     ]);
     if ($novels->count() < 1) {
+        $exampleData = [
+            'name'         => "权力巅峰",
+            'list_url'     => "https://www.biquge5.com/1_1216/",
+            'base_url'     => "https://www.biquge5.com",
+            'novel_status' => 3,
+            'insert_date'  => $currentTime,
+        ];
         $novel = new NovelMainModel();
-        $novel->name = "权力巅峰";
-        $novel->list_url = "https://www.biquge5.com/1_1216/";
-        $novel->base_url = "https://www.biquge5.com";
+        $novel->name = $exampleData['name'];
+        $novel->list_url = $exampleData['list_url'];
+        $novel->base_url = $exampleData['base_url'];
         $novel->novel_status = 3;// 1列表已抓取  3等待抓取列表
-        $novel->insert_date = date('Y-m-d H:i:s');
-        $novel->save();
+        $novel->insert_date = $currentTime;
+        if (!$novel->checkExist([
+            'list_url'=>$novel->list_url,
+        ])) {
+            $novel->save();
+            $novels = collect([$novel,]);
+        }
     }
     //针对每个小说 获取他们的列表页
     $novels->map(function ($item) use ($novelService) {
