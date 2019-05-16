@@ -9,6 +9,7 @@ use Novel\NovelSpider\Models\ListModel;
 use Libs\Helper\NumberTransfer;
 use Novel\NovelSpider\Models\NovelListModel;
 use Novel\NovelSpider\Models\NovelMainModel;
+use Novel\NovelSpider\Services\DataCacheService;
 
 /**
  * Class Test
@@ -26,8 +27,13 @@ class Test
     public function __construct()
     {
         if (!$this->redisObj) {
+            $envConfigArr = DataCacheService::get('envConfigArr');
+            if (!isset($envConfigArr['redis_config'])) {
+                throw new \Exception("has no config data in your env file.", -100);
+            }
+            $redisConfig = $envConfigArr['redis_config'];
             $backupParam    = [
-                'host'     => '159.138.63.10',
+                'host'     => $redisConfig['HOST'],
                 'port'     => 6379,
                 'database' => 0,
             ];

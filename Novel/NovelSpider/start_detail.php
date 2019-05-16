@@ -4,7 +4,6 @@ require __DIR__."/../../vendor/autoload.php";
 use \Workerman\Worker;
 use \Workerman\Lib\Timer;
 use \Workerman\Connection\AsyncTcpConnection;
-
 use QL\QueryList;
 use Novel\NovelSpider\Controller\Test;
 use Predis\Client;
@@ -13,17 +12,23 @@ use Novel\NovelSpider\Models\ContentModel;
 use Novel\NovelSpider\Services\SdealUpdate;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Libs\Db\Db;
+use Novel\NovelSpider\Services\DataCacheService;
 
-$task = new Worker();
-// 开启多少个进程运行定时任务，注意多进程并发问题
-$task->count = 1;
+// 解析配置文件
+//定义全局常量
+define('ROOT', realpath(__DIR__.'/../../'));
+//解析配置文件
+$envConfig = parse_ini_file(ROOT . "/.env", true);
+DataCacheService::set('envConfigArr', $envConfig);
+$dbConfig = $envConfig['start_list_db'] ?? [];
+
 //数据库加载配置文件
 $database = [
     'driver'    => 'mysql',
-    'host'      => '127.0.0.1',
-    'database'  => 'bbs_test',
-    'username'  => 'root',
-    'password'  => '123456',
+    'host'      => $dbConfig['DB_HOST'],
+    'database'  => $dbConfig['DB_DATABASE'],
+    'username'  => $dbConfig['DB_USER'],
+    'password'  => $dbConfig['DB_PASSWORD'],
     'charset'   => 'utf8',
     'collation' => 'utf8_unicode_ci',
     'prefix'    => '',
@@ -33,45 +38,9 @@ $capsule->addConnection($database);
 $capsule->setAsGlobal();
 $capsule->bootEloquent();
 
-
-function getDetail($oneTaskData=[], $taskId=0)
-{
-    $novel = new Test();
-    // 获取详情页的结果
-    $detailInfo = $novel->getDetail($oneTaskData);
-    if ($detailInfo['status'] != 1) {
-        echo $detailInfo['message'];
-        return $detailInfo;
-    }
-    if ($oneTaskData['chapter'] <= 0) {
-        echo $message = '章节为0，不是正常的正文内容！'.PHP_EOL;
-        return ['status'=>2, 'message'=>$message];
-    }
-    $detailData = $detailInfo['data'];
-    $curTime = date('Y-m-d H:i:s');
-    $detailData = [
-        'list_id'   => $oneTaskData['novel_id'],
-        'chapter'   => $oneTaskData['chapter'],
-        'title'     => $oneTaskData['title'],
-        'content'   => $detailData['content'],
-        'worker_id' => $taskId,
-        'date'      => $curTime,
-        'err_flag'  => 0,
-    ];
-    $saveResult = $novel->detailInsertOrUpdate([
-        'where' => [
-            ['chapter','=',$oneTaskData['chapter'] ],
-        ],
-        'data'  => $detailData,
-    ]);
-    if ($saveResult['status'] != 1) {
-        echo $saveResult['message'] . PHP_EOL;
-        return $saveResult;
-    }
-    echo date('Y-m-d H:i:s').'--->'.$saveResult['message'].PHP_EOL;
-    var_dump($saveResult['data']);
-}
-
+$task = new Worker();
+// 开启多少个进程运行定时任务，注意多进程并发问题
+$task->count = 1;
 $task->onWorkerStart = function($task) {
     $keyConfig = [
         'list-key'   => 'novel-list-key',
@@ -169,3 +138,44 @@ $task->onWorkerStart = function($task) {
 
 // 运行worker
 Worker::runAll();
+
+// ---------------------------- 以下是一些函数定义 -----------------------------------
+
+
+function getDetail($oneTaskData=[], $taskId=0)
+{
+    $novel = new Test();
+    // 获取详情页的结果
+    $detailInfo = $novel->getDetail($oneTaskData);
+    if ($detailInfo['status'] != 1) {
+        echo $detailInfo['message'];
+        return $detailInfo;
+    }
+    if ($oneTaskData['chapter'] <= 0) {
+        echo $message = '章节为0，不是正常的正文内容！'.PHP_EOL;
+        return ['status'=>2, 'message'=>$message];
+    }
+    $detailData = $detailInfo['data'];
+    $curTime = date('Y-m-d H:i:s');
+    $detailData = [
+        'list_id'   => $oneTaskData['novel_id'],
+        'chapter'   => $oneTaskData['chapter'],
+        'title'     => $oneTaskData['title'],
+        'content'   => $detailData['content'],
+        'worker_id' => $taskId,
+        'date'      => $curTime,
+        'err_flag'  => 0,
+    ];
+    $saveResult = $novel->detailInsertOrUpdate([
+        'where' => [
+            ['chapter','=',$oneTaskData['chapter'] ],
+        ],
+        'data'  => $detailData,
+    ]);
+    if ($saveResult['status'] != 1) {
+        echo $saveResult['message'] . PHP_EOL;
+        return $saveResult;
+    }
+    echo date('Y-m-d H:i:s').'--->'.$saveResult['message'].PHP_EOL;
+    var_dump($saveResult['data']);
+}
