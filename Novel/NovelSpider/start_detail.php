@@ -1,18 +1,13 @@
 <?php
 require __DIR__."/../../vendor/autoload.php";
 
-use \Workerman\Worker;
-use \Workerman\Lib\Timer;
-use \Workerman\Connection\AsyncTcpConnection;
-use QL\QueryList;
-use Novel\NovelSpider\Controller\Test;
-use Predis\Client;
-use Novel\NovelSpider\Models\ListModel;
-use Novel\NovelSpider\Models\ContentModel;
-use Novel\NovelSpider\Services\SdealUpdate;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use Libs\Db\Db;
+use Novel\NovelSpider\Controller\Test;
 use Novel\NovelSpider\Services\DataCacheService;
+use Workerman\Lib\Timer;
+use Workerman\Worker;
+use Novel\NovelSpider\Models\NovelContentModel;
+use Novel\NovelSpider\Services\NovelContentService;
 
 // 解析配置文件
 //定义全局常量
@@ -48,17 +43,26 @@ $task->onWorkerStart = function($task) {
     ];
     $listKey = 'novel-list-key';
     $redis = new Predis\Client();
+    $contentService = new NovelContentService();
     // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器
     if($task->id >=0){
         echo "worker ".$task->id." start for detail~".PHP_EOL;
         while(1)
         {
-            $oneData = $redis->rpop($listKey);
+            // the data is likely : {"id":2462,"novel_id":6,"name":"\\u7b2c2118\\u7ae0\\u91cd\\u78c5","chapter_num":2,"url":"https:\\/\\/www.biquge5.com\\/1_1216\\/19896689.html","desc":"","flag":2,"err_flag":0,"add_time":"2019-04-27 18:04:40","update_time":"2019-04-27 18:04:40"}
+            // $oneData = $redis->rpop($listKey);
+            $oneData = '{"id":2462,"novel_id":6,"name":"\\u7b2c2118\\u7ae0\\u91cd\\u78c5","chapter_num":2,"url":"https:\\/\\/www.biquge5.com\\/1_1216\\/19896689.html","desc":"","flag":2,"err_flag":0,"add_time":"2019-04-27 18:04:40","update_time":"2019-04-27 18:04:40"}';
             //取出单个数据后，获取具体的详细信息
             $oneData = json_decode($oneData, true);
-            getDetail($oneData, $task->id);
+            try {
+                $contentService->getDetail($oneData, $task->id);
+            }catch (\Exception $e) {
+                var_dump($e->getMessage());
+            }
             $random = mt_rand(1,3);
             sleep($random);
+
+            sleep(1000);
         }
 
         /*$count = 0;
@@ -138,44 +142,3 @@ $task->onWorkerStart = function($task) {
 
 // 运行worker
 Worker::runAll();
-
-// ---------------------------- 以下是一些函数定义 -----------------------------------
-
-
-function getDetail($oneTaskData=[], $taskId=0)
-{
-    $novel = new Test();
-    // 获取详情页的结果
-    $detailInfo = $novel->getDetail($oneTaskData);
-    if ($detailInfo['status'] != 1) {
-        echo $detailInfo['message'];
-        return $detailInfo;
-    }
-    if ($oneTaskData['chapter'] <= 0) {
-        echo $message = '章节为0，不是正常的正文内容！'.PHP_EOL;
-        return ['status'=>2, 'message'=>$message];
-    }
-    $detailData = $detailInfo['data'];
-    $curTime = date('Y-m-d H:i:s');
-    $detailData = [
-        'list_id'   => $oneTaskData['novel_id'],
-        'chapter'   => $oneTaskData['chapter'],
-        'title'     => $oneTaskData['title'],
-        'content'   => $detailData['content'],
-        'worker_id' => $taskId,
-        'date'      => $curTime,
-        'err_flag'  => 0,
-    ];
-    $saveResult = $novel->detailInsertOrUpdate([
-        'where' => [
-            ['chapter','=',$oneTaskData['chapter'] ],
-        ],
-        'data'  => $detailData,
-    ]);
-    if ($saveResult['status'] != 1) {
-        echo $saveResult['message'] . PHP_EOL;
-        return $saveResult;
-    }
-    echo date('Y-m-d H:i:s').'--->'.$saveResult['message'].PHP_EOL;
-    var_dump($saveResult['data']);
-}

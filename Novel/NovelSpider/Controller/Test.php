@@ -2,7 +2,6 @@
 
 namespace Novel\NovelSpider\Controller;
 
-use Novel\NovelSpider\Models\ContentModel;
 use Novel\NovelSpider\Models\NovelContentModel;
 use QL\QueryList;
 use Novel\NovelSpider\Models\ListModel;
@@ -329,7 +328,7 @@ class Test
      */
     public function checkHasCrawling($chapter)
     {
-        $listModel = new ContentModel();
+        $listModel = new NovelContentModel();
         $res       = $listModel->getAll([
             'chapter' => $chapter,
             'order'   => 1,

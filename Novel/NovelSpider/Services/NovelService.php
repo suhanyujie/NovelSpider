@@ -9,7 +9,6 @@
 namespace Novel\NovelSpider\Services;
 
 use Libs\Helper\NumberTransfer;
-use Novel\NovelSpider\Models\ContentModel;
 use Novel\NovelSpider\Models\NovelContentModel;
 use Novel\NovelSpider\Models\NovelListModel;
 use Novel\NovelSpider\Models\NovelMainModel;
@@ -388,7 +387,7 @@ class NovelService
      */
     public function checkHasCrawling($chapter)
     {
-        $listModel = new ContentModel();
+        $listModel = new NovelContentModel();
         $res       = $listModel->getAll([
             'chapter' => $chapter,
             'order'   => 1,
