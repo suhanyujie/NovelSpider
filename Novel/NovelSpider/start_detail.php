@@ -35,7 +35,7 @@ $capsule->bootEloquent();
 
 $task = new Worker();
 // 开启多少个进程运行定时任务，注意多进程并发问题
-$task->count = 1;
+$task->count = 4;
 $task->onWorkerStart = function($task) {
     $keyConfig = [
         'list-key'   => 'novel-list-key',
@@ -50,8 +50,14 @@ $task->onWorkerStart = function($task) {
         while(1)
         {
             // the data is likely : {"id":2462,"novel_id":6,"name":"\\u7b2c2118\\u7ae0\\u91cd\\u78c5","chapter_num":2,"url":"https:\\/\\/www.biquge5.com\\/1_1216\\/19896689.html","desc":"","flag":2,"err_flag":0,"add_time":"2019-04-27 18:04:40","update_time":"2019-04-27 18:04:40"}
-            // $oneData = $redis->rpop($listKey);
-            $oneData = '{"id":2462,"novel_id":6,"name":"\\u7b2c2118\\u7ae0\\u91cd\\u78c5","chapter_num":2,"url":"https:\\/\\/www.biquge5.com\\/1_1216\\/19896689.html","desc":"","flag":2,"err_flag":0,"add_time":"2019-04-27 18:04:40","update_time":"2019-04-27 18:04:40"}';
+            $oneData = $redis->rpop($listKey);
+            $taskLength = $redis->llen($listKey);
+            echo "Info:\t队列中剩余任务数量：{$taskLength}\n";
+            if (empty($oneData)) {
+                echo "Info:\t当前队列中没有任务数据...\n";
+                sleep(10);
+            }
+            // $oneData = '{"id":2462,"novel_id":6,"name":"\\u7b2c2118\\u7ae0\\u91cd\\u78c5","chapter_num":2,"url":"https:\\/\\/www.biquge5.com\\/1_1216\\/19896689.html","desc":"","flag":2,"err_flag":0,"add_time":"2019-04-27 18:04:40","update_time":"2019-04-27 18:04:40"}';
             //取出单个数据后，获取具体的详细信息
             $oneData = json_decode($oneData, true);
             try {
@@ -61,8 +67,6 @@ $task->onWorkerStart = function($task) {
             }
             $random = mt_rand(1,3);
             sleep($random);
-
-            sleep(1000);
         }
 
         /*$count = 0;

@@ -22,8 +22,40 @@ class NovelContentService
 
     protected $data = [];
 
+    /**
+     * @param array $oneTaskData
+     * array(10) {
+        ["id"]=>
+        int(2462)
+        ["novel_id"]=>
+        int(6)
+        ["name"]=>
+        string(16) "第2118章重磅"
+        ["chapter_num"]=>
+        int(2)
+        ["url"]=>
+        string(44) "https://www.biquge5.com/1_1216/19896689.html"
+        ["desc"]=>
+        string(0) ""
+        ["flag"]=>
+        int(2)
+        ["err_flag"]=>
+        int(0)
+        ["add_time"]=>
+        string(19) "2019-04-27 18:04:40"
+        ["update_time"]=>
+        string(19) "2019-04-27 18:04:40"
+        }
+     *
+     * @param int $taskId
+     * @return array|bool|void
+     * @throws \Exception
+     */
     public function getDetail($oneTaskData=[], $taskId=0)
     {
+        if (empty($oneTaskData)) {
+            return ['status'=>101, 'message'=>'task参数为空！没有任务数据'];
+        }
         $novel = new Test();
         // 获取详情页的结果
         $detailInfo = $novel->getDetail($oneTaskData);
@@ -31,7 +63,7 @@ class NovelContentService
             echo $detailInfo['message'];
             return $detailInfo;
         }
-        if ($oneTaskData['chapter'] <= 0) {
+        if ($oneTaskData['chapter_num'] <= 0) {
             echo $message = '章节为0，不是正常的正文内容！'.PHP_EOL;
             return ['status'=>2, 'message'=>$message];
         }
@@ -41,34 +73,29 @@ class NovelContentService
         } else {
             $contentModel = $this->contentModel;
         }
-        $detailData = $detailInfo['data'];
+        $content = $detailInfo['data'];
         $curTime = date('Y-m-d H:i:s');
         $detailData = [
             'novel_id'    => $oneTaskData['novel_id'],
             'list_id'     => $oneTaskData['id'],
-            'chapter'     => $oneTaskData['chapter'],
-            'title'       => $oneTaskData['title'],
-            'content'     => $detailData['content'],
+            'chapter'     => $oneTaskData['chapter_num'],
+            'title'       => $oneTaskData['name'],
+            'content'     => $content,
             'add_time'    => $curTime,
             'delete_flag' => 0,
             'err_flag'    => 0,
         ];
-        $insertRes = $contentModel->create($detailData);
-        var_dump($insertRes);return;
-
-
-
-        $saveResult = $novel->detailInsertOrUpdate([
+        $saveResult = $contentModel->detailInsertOrUpdate([
             'where' => [
-                ['chapter','=',$oneTaskData['chapter'] ],
+                ['chapter', '=', $oneTaskData['chapter_num'] ],
             ],
             'data'  => $detailData,
         ]);
         if ($saveResult['status'] != 1) {
-            echo $saveResult['message'] . PHP_EOL;
-            return $saveResult;
+            echo "异常\t".$saveResult['message'] . PHP_EOL;
         }
-        echo date('Y-m-d H:i:s').'--->'.$saveResult['message'].PHP_EOL;
-        var_dump($saveResult['data']);
+        echo date('Y-m-d H:i:s').' ---> '.$saveResult['message'].PHP_EOL;
+
+        return $saveResult;
     }
 }

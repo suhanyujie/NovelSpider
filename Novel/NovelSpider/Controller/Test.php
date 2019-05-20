@@ -137,6 +137,7 @@ class Test
             $message = date('Y-m-d H:i:s') . "-->没有url可以抓取详情啦~" . PHP_EOL;
             return ['status' => 8300, 'message' => $message];
         }
+        /*
         $url = $taskData['url'];
         //$url = 'http://www.biquwu.cc/biquge/17_17308/c5056844.html';// test data
         //->encoding('UTF-8','GB2312')
@@ -149,9 +150,21 @@ class Test
             return $item;
         })->getData();
         $detailData            = $hj->first();
-        $detailData['chapter'] = $taskData['chapter'];
+        */
+        $url = $taskData['url'];
+        $rule = [
+            "content" => ['#content', 'text'],// a链接
+        ];
+        $qr = QueryList::get($url)->rules($rule)
+            ->encoding('UTF-8','GB2312')
+            ->removeHead()
+            ->query();
+        $data = (array)$qr->getData();
+        // 一维数组的键是`*items`，因此降维处理
+        $data = array_pop($data);
+        $content = $data[0]['content'];
 
-        return ['status' => 1, 'data' => $detailData, 'message' => '获取详情成功！'];
+        return ['status' => 1, 'data' => $content, 'message' => '获取详情成功！'];
     }
 
     /**
