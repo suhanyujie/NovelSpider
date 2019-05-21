@@ -23,6 +23,7 @@ class NovelContentService
     protected $data = [];
 
     /**
+     * 抓取详情
      * @param array $oneTaskData
      * array(10) {
         ["id"]=>
@@ -51,7 +52,7 @@ class NovelContentService
      * @return array|bool|void
      * @throws \Exception
      */
-    public function getDetail($oneTaskData=[], $taskId=0)
+    public function crawlingGetDetail($oneTaskData=[], $taskId=0)
     {
         if (empty($oneTaskData)) {
             return ['status'=>101, 'message'=>'task参数为空！没有任务数据'];
@@ -87,6 +88,7 @@ class NovelContentService
         ];
         $saveResult = $contentModel->detailInsertOrUpdate([
             'where' => [
+                ['novel_id', '=', $oneTaskData['novel_id'] ],
                 ['chapter', '=', $oneTaskData['chapter_num'] ],
             ],
             'data'  => $detailData,

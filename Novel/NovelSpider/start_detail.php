@@ -61,7 +61,7 @@ $task->onWorkerStart = function($task) {
             //取出单个数据后，获取具体的详细信息
             $oneData = json_decode($oneData, true);
             try {
-                $contentService->getDetail($oneData, $task->id);
+                $contentService->crawlingGetDetail($oneData, $task->id);
             }catch (\Exception $e) {
                 var_dump($e->getMessage());
             }
