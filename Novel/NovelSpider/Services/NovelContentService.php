@@ -23,6 +23,11 @@ class NovelContentService
 
     protected $data = [];
 
+    public function __construct()
+    {
+
+    }
+
     /**
      * 抓取详情
      * @param array $oneTaskData
