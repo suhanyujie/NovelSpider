@@ -6,8 +6,8 @@ use Novel\NovelSpider\Controller\Test;
 use Novel\NovelSpider\Services\DataCacheService;
 use Workerman\Lib\Timer;
 use Workerman\Worker;
-use Novel\NovelSpider\Models\NovelContentModel;
 use Novel\NovelSpider\Services\NovelContentService;
+use Novel\NovelSpider\Services\NovelService;
 
 // 解析配置文件
 //定义全局常量
@@ -35,13 +35,16 @@ $capsule->bootEloquent();
 
 $task = new Worker();
 // 开启多少个进程运行定时任务，注意多进程并发问题
-$task->count = 4;
+$task->count = 2;
 $task->onWorkerStart = function($task) {
+    $novelService = new NovelService();
     $keyConfig = [
         'list-key'   => 'novel-list-key',
         'detail-key' => 'novel-detail-key',
     ];
-    $listKey = 'novel-list-key';
+    // $listKey = 'novel-list-key';
+    $testNovelId = 7;
+    $listKey = $novelService->getListQueueKey($testNovelId);
     $redis = new Predis\Client();
     $contentService = new NovelContentService();
     // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器

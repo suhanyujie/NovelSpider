@@ -101,13 +101,14 @@ $listTask->onWorkerStart = function($listTask)
             }
         }
         $chapterList = $novelService->getListFromMysql($item->id);
-        $listKey = NovelCacheKeyConfigService::NOVEL_LIST_KEY .":". $item->id;
+        $listKey = $novelService->getListQueueKey($item->id);
         $redis   = new Predis\Client();
         $redis->del($listKey);
         try {
             if (!$chapterList) {
                 echo "Mysql中也没有尚未抓取的url啦~1\n";
             } else {
+                $novelService->setListQueueKey($listKey);
                 $pushResult = $novelService->pushIntoRedis($chapterList);
             }
         } catch (\Exception $e) {

@@ -298,12 +298,27 @@ class NovelService
         return $res;
     }
 
+    public function getListQueueKey($novelId = 0)
+    {
+        $listKey = NovelCacheKeyConfigService::NOVEL_LIST_KEY .":". $novelId;
+        return $listKey;
+    }
+
+    public function setListQueueKey($key = '')
+    {
+        if (empty($key)) return;
+        $this->listUrlKey = $key;
+    }
+
     /**
      * 向redis中lpush数据url
      */
     public function pushIntoRedis($data)
     {
         if ($data->count() < 1) return false;
+        if (empty($this->listUrlKey)) {
+            return ['status'=>314, 'message'=>'列表队列key尚未设定！'];
+        }
         $redis = $this->redisObj;
         // 如果有数据,则不用push
         $queueTaskLen = $redis->llen($this->listUrlKey);

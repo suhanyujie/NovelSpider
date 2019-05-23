@@ -10,6 +10,7 @@ namespace Novel\NovelSpider\Services;
 
 use Novel\NovelSpider\Controller\Test;
 use Novel\NovelSpider\Models\NovelContentModel;
+use Novel\NovelSpider\Models\NovelListModel;
 
 class NovelContentService
 {
@@ -95,7 +96,19 @@ class NovelContentService
         ]);
         if ($saveResult['status'] != 1) {
             echo "异常\t".$saveResult['message'] . PHP_EOL;
+        } else {
+            // 将 list 表中的内容的 flag 更新
+            if (empty($this->data['listModel'])) {
+                $listModel = new NovelListModel();
+            } else {
+                $listModel = $this->data['listModel'];
+            }
+            $oneNovel = $listModel->find($oneTaskData['id']);
+            $oneNovel->flag = 1;
+            $oneNovel->update_time = date('Y-m-d H:i:s');
+            $oneNovel->save();
         }
+
         echo date('Y-m-d H:i:s').' ---> '.$saveResult['message'].PHP_EOL;
 
         return $saveResult;
