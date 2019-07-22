@@ -1,8 +1,9 @@
 # NovelSpider
-* 爬取小说,练练手
+* 爬取小说，练练手
 
 ## 环境
 * `*Unix`环境
+* redis 服务
 
 ## 类库
 * 数据库orm，使用`illuminate/database`
@@ -25,8 +26,8 @@
 cd Frontend;
 npm install;
 npm run build;
-//此时使用workerman作为web容器，启动
-php App/NovelAdmin/test.php start;
+// 此时使用 workerman 作为 web 服务容器，启动
+php App/NovelAdmin/index.php start;
 ```
 
 ## 运行
@@ -36,6 +37,10 @@ php App/NovelAdmin/test.php start;
 ## 一些注意事项
 * 更新workerman的软件包 `composer update workerman/workerman`
 * 截止20181102，目前已经将数据的orm改为 `laravel` 的 `Illuminate database`，详细使用可以参考[官方库](https://github.com/illuminate/database)的文档示例
+
+### composer 镜像源
+* 可以先把 composer.lock 文件删除，配置阿里的镜像源 `composer config repo.packagist composer https://mirrors.aliyun.com/composer/`
+* 然后 `composer install`
 
 ~~### php路由库Macaw~~
 ~~* 添加路由时，记得放在onWorkerStart的回调中，因为如果针对同一个uri添加n个路由处理时，请求到来时，会被处理n次~~
