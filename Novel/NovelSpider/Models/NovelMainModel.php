@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: suhanyu
+ * User: Samuel
  * Date: 18/8/9
  * Time: 下午10:23
  */
@@ -105,11 +105,11 @@ class NovelMainModel extends Model
         } else {
             $model = $model->orderby('id', 'desc');
         }
-        $model = $model->offset($offset)->limit($limit);
+        $model = $model->offset($options['offset'])->limit($options['limit']);
         if (!empty($debug)) {
             echo $model->toSql();exit();
         }
-        $data = $model->get([$fields]);
+        $data = $model->get([$options['fields']]);
 
         return $data;
     }

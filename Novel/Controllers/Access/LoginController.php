@@ -12,6 +12,10 @@ use Novel\Controllers\Controller;
 
 class LoginController extends Controller
 {
+    /**
+     * /Access/Login/login
+     * @return string
+     */
     public function login()
     {
         $request = $this->request;
