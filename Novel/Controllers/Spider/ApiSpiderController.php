@@ -40,17 +40,16 @@ class ApiSpiderController extends Controller
      */
     public function mainList()
     {
-        $result = [
-            'status'=>1,
-            'msg'=>'test route',
-        ];
-        ConfigService::loadConfig();
         $paramArr = [
-
+            'offset' => 0,
+            'limit'  => 10,
         ];
         $result = $this->mainListModel->getList($paramArr);
-
-        return $this->json($result);
+        $returnArr = [
+            'code' => 200,
+            'data' => $result,
+        ];
+        return $this->json($returnArr);
     }
 
     /**

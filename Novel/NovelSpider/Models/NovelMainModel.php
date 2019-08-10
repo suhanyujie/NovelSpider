@@ -8,7 +8,10 @@
 
 namespace Novel\NovelSpider\Models;
 
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\Model;
+use Novel\NovelSpider\Services\Common\Config\ConfigService;
+use Novel\NovelSpider\Services\Common\Mysql\ConnectorService;
 
 /**
  * Class NovelMainModel
@@ -39,6 +42,11 @@ class NovelMainModel extends Model
 
     const UPDATED_AT = null;
     const CREATED_AT = null;
+
+    public function __construct()
+    {
+        ConnectorService::getOneConn();
+    }
 
     public static function checkExist($paramArr=[]):bool
     {
@@ -109,7 +117,8 @@ class NovelMainModel extends Model
         if (!empty($debug)) {
             echo $model->toSql();exit();
         }
-        $data = $model->get([$options['fields']]);
+        $data = $model->get([$options['fields']])
+                ->toArray();
 
         return $data;
     }
