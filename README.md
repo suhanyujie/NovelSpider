@@ -1,9 +1,10 @@
 # NovelSpider
 * 爬取小说，练练手
 
-## 环境
-* `*Unix`环境
+## 环境要求
+* `*Unix` 环境
 * redis 服务
+* PHP >= 7.2
 
 ## 类库
 * 数据库orm，使用`illuminate/database`
