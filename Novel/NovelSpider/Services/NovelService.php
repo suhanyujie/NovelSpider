@@ -8,10 +8,12 @@
 
 namespace Novel\NovelSpider\Services;
 
+use Exception;
 use Libs\Helper\NumberTransfer;
 use Novel\NovelSpider\Models\NovelContentModel;
 use Novel\NovelSpider\Models\NovelListModel;
 use Novel\NovelSpider\Models\NovelMainModel;
+use Predis\Client;
 use QL\QueryList;
 
 class NovelService
@@ -26,7 +28,7 @@ class NovelService
     protected $baseUrl = 'http://www.biquwu.cc';
 
     /**
-     * @var \Predis\Client
+     * @var Client
      */
     protected $redisObj = null;
     protected $listUrlKey;
@@ -36,12 +38,12 @@ class NovelService
     public function __construct()
     {
         if (!$this->redisObj) {
-            $backupParam    = [
+            $backupParam = [
                 'host'     => '127.0.0.1',
                 'port'     => 6379,
                 'database' => 0,
             ];
-            $redis          = new \Predis\Client();
+            $redis = new Client();
             $this->redisObj = $redis;
             if (!$this->redisObj) {
                 echo 'redis没有启动，请检查！' . PHP_EOL;
@@ -53,36 +55,17 @@ class NovelService
     }
 
     // 检查列表是否存在
-    public function checkNovelListExist($novelId=0):bool
+    public function checkNovelListExist($novelId = 0): bool
     {
         $listModel = new NovelListModel();
         $res = $listModel->where('novel_id', $novelId)
             ->first();
-        return (is_null($res) || $res->count()<1) ? false : true;
+        return (is_null($res) || $res->count() < 1) ? false : true;
     }
 
     // 获取小说的章节列表
-    public function getList()
-    {
-        $url = 'http://www.biquwu.cc/biquge/17_17308/';
-        $url = $this->listUrl ?? $url;
-        $rule = [
-            "listHtml" => ['#list ul li', 'html'],// a链接
-            "title" => ['#list ul li a', 'text'],// 章节标题
-            "href" => ['#list ul li a', 'href'],// 章节链接
-        ];
-        $qr = QueryList::get($url)->rules($rule)
-            ->encoding('UTF-8','GB2312')
-            ->removeHead()
-            ->query();
-        $data = (array)$qr->getData();
-        // 一维数组的键是`*items`，因此降维处理
-        $data = array_pop($data);
 
-        return $data;
-    }// end of function
-
-    public function storeList($chapterList=[])
+    public function storeList($chapterList = [])
     {
         if (empty($chapterList)) {
             echo "没有列表内容。。。\n";
@@ -91,9 +74,9 @@ class NovelService
         $model = new NovelListModel();
         $nowTime = $this->data['currentTime'];
         $chapterListGroup = array_chunk($chapterList, 100);
-        foreach ($chapterListGroup as $kg=>$oneGroup) {
+        foreach ($chapterListGroup as $kg => $oneGroup) {
             $insertMulData = [];
-            foreach ($oneGroup as $k=>$oneChapter) {
+            foreach ($oneGroup as $k => $oneChapter) {
                 // 检查是否有章节数字
                 $isMatch = preg_match("@(\d{1,})@", $oneChapter['title'], $pregRes);
                 if ($isMatch) {
@@ -116,13 +99,13 @@ class NovelService
             if (!$result) {
                 $lastIndex = count($insertMulData);
                 $errMsg = "有一批数据插入失败！起始title:{$insertMulData[0]['name']}，结束title:{$insertMulData[$lastIndex-1]['name']}\n";
-                throw new \Exception($errMsg, 400);
+                throw new Exception($errMsg, 400);
                 break;
             }
         }
 
         return;
-    }
+    }// end of function
 
     /**
      * @desc 获取小说的列表数据
@@ -177,7 +160,9 @@ class NovelService
      */
     public function getListFromRedis($cacheKey = '')
     {
-        if (!$cacheKey) return false;
+        if (!$cacheKey) {
+            return false;
+        }
         $redis = $this->redisObj;
         //$redis -> hmset ( $keyConfig['list-key'] , $list ) ;
         //$redis -> del ( $keyConfig['list-key'] ) ;
@@ -199,15 +184,15 @@ class NovelService
         $url = $taskData['url'];
         //$url = 'http://www.biquwu.cc/biquge/17_17308/c5056844.html';// test data
         //->encoding('UTF-8','GB2312')
-        $hj                    = QueryList::get($url)->rules([
+        $hj = QueryList::get($url)->rules([
             "title"   => ['.bookname>h1', 'html'],
             "content" => ['#content', 'html'],
         ])->query(function ($item) {
-            $item['title']   = iconv('gbk', 'utf-8//IGNORE', $item['title']);
+            $item['title'] = iconv('gbk', 'utf-8//IGNORE', $item['title']);
             $item['content'] = iconv('gbk', 'utf-8//IGNORE', $item['content']);
             return $item;
         })->getData();
-        $detailData            = $hj->first();
+        $detailData = $hj->first();
         $detailData['chapter'] = $taskData['chapter'];
 
         return ['status' => 1, 'data' => $detailData, 'message' => '获取详情成功！'];
@@ -240,14 +225,14 @@ class NovelService
                 foreach ($options['where'] as $option) {
                     $model = $model->where($option[0], $option[1], $option[2]);
                 }
-                $result  = $model->update($options['data']);
+                $result = $model->update($options['data']);
                 $message = '更新';
             } else {
-                $result  = $model->create($options['data']);
+                $result = $model->create($options['data']);
                 $message = '新增';
             }
         } else {
-            $result  = $model->create($options['data']);
+            $result = $model->create($options['data']);
             $message = '新增';
         }
 
@@ -277,12 +262,47 @@ class NovelService
         return true;
     }
 
+    public function getListQueueKey($novelId = 0)
+    {
+        $listKey = NovelCacheKeyConfigService::NOVEL_LIST_KEY . ":" . $novelId;
+        return $listKey;
+    }
+
+    public function setListQueueKey($key = '')
+    {
+        if (empty($key)) {
+            return;
+        }
+        $this->listUrlKey = $key;
+    }
+
+    /**
+     * 获取下一个可以抓取详情的url
+     */
+    public function getNextTaskData($type = 2)
+    {
+        $redis = $this->redisObj;
+        $taskData = $redis->lpop($this->listUrlKey);
+        if (!$taskData) {
+            $res = $this->getListFromMysql($type);
+            if (!$res) {
+                echo "Mysql中也没有尚未抓取的url啦~1" . PHP_EOL;
+                return false;
+            }
+            $this->pushIntoRedis($res);
+            $taskData = $redis->lpop($this->listUrlKey);
+        }
+        return $taskData;
+    }
+
     /**
      * 查询MySQL中的列表url,向redis中push  使用list数据结构
      */
     public function getListFromMysql($novelId = 0)
     {
-        if (!$novelId) return [];
+        if (!$novelId) {
+            return [];
+        }
         if (isset($this->data['listModel'])) {
             $listModel = $this->data['listModel'];
         } else {
@@ -298,26 +318,19 @@ class NovelService
         return $res;
     }
 
-    public function getListQueueKey($novelId = 0)
-    {
-        $listKey = NovelCacheKeyConfigService::NOVEL_LIST_KEY .":". $novelId;
-        return $listKey;
-    }
-
-    public function setListQueueKey($key = '')
-    {
-        if (empty($key)) return;
-        $this->listUrlKey = $key;
-    }
-
     /**
      * 向redis中lpush数据url
      */
-    public function pushIntoRedis($data)
+    public function pushIntoRedis($data = [])
     {
-        if ($data->count() < 1) return false;
+        if (is_array($data) && empty($data)) {
+            return ['status' => 313, 'message' => '数据列表为空！'];
+        }
+        if (is_object($data) && $data->count() < 1) {
+            return ['status' => 313, 'message' => '数据列表为空！'];;
+        }
         if (empty($this->listUrlKey)) {
-            return ['status'=>314, 'message'=>'列表队列key尚未设定！'];
+            return ['status' => 314, 'message' => '列表队列key尚未设定！'];
         }
         $redis = $this->redisObj;
         // 如果有数据,则不用push
@@ -333,7 +346,7 @@ class NovelService
             echo "列表{$v['id']}已经加入队列\n";
         }
         // push完成之后,将list表中的flag置为1
-        $listModel    = new NovelListModel();
+        $listModel = new NovelListModel();
         $updateResult = $listModel->whereIn('id', $dataIdArr)->update([
             'flag' => 1,
         ]);
@@ -345,30 +358,13 @@ class NovelService
     }
 
     /**
-     * 获取下一个可以抓取详情的url
-     */
-    public function getNextTaskData($type = 2)
-    {
-        $redis    = $this->redisObj;
-        $taskData = $redis->lpop($this->listUrlKey);
-        if (!$taskData) {
-            $res = $this->getListFromMysql($type);
-            if (!$res) {
-                echo "Mysql中也没有尚未抓取的url啦~1" . PHP_EOL;
-                return false;
-            }
-            $this->pushIntoRedis($res);
-            $taskData = $redis->lpop($this->listUrlKey);
-        }
-        return $taskData;
-    }
-
-    /**
      * 存储1篇详情
      */
     public function saveDetail($contentData = [])
     {
-        if (empty($contentData)) return ['status' => 2, 'message' => '参数缺省$contentData！'];
+        if (empty($contentData)) {
+            return ['status' => 2, 'message' => '参数缺省$contentData！'];
+        }
         if (isset($this->data['detailModel'])) {
             $model = $this->data['detailModel'];
         } else {
@@ -380,22 +376,22 @@ class NovelService
         } else {
             return ['status' => 1, 'message' => '保存失败！'];
         }
-    }// end of function
+    }
 
     /**
      * 获取历史抓取的最新的一章
      */
     public function getLatestChapter()
     {
-        $listModel        = new ListModel();
-        $res              = $listModel->getAll([
+        $listModel = new ListModel();
+        $res = $listModel->getAll([
             'order' => 1,
             'num'   => 1,
         ]);
-        $res              = $res[0];
+        $res = $res[0];
         $ourNewestChapter = $res['chapter'];
-        $res              = $this->checkHasCrawling($res['chapter']);
-    }
+        $res = $this->checkHasCrawling($res['chapter']);
+    }// end of function
 
     /**
      * 检查这个url/id是否被爬取过
@@ -403,7 +399,7 @@ class NovelService
     public function checkHasCrawling($chapter)
     {
         $listModel = new NovelContentModel();
-        $res       = $listModel->getAll([
+        $res = $listModel->getAll([
             'chapter' => $chapter,
             'order'   => 1,
             'num'     => 1,
@@ -416,9 +412,9 @@ class NovelService
      */
     public function saveList()
     {
-        $list      = $this->getList();
+        $list = $this->getList();
         $listModel = new ListModel();
-        $i         = 0;
+        $i = 0;
         foreach ($list as $k => $v) {
             $data = [
                 'novel_id' => 2,// 2 大宋王侯
@@ -432,12 +428,35 @@ class NovelService
         return $flag;
     }
 
-    public function setListUrl($listUrl=''):void
+    public function getList()
+    {
+        $url = 'http://www.biquwu.cc/biquge/17_17308/';
+        $url = $this->listUrl ?? $url;
+        $rule = [
+            "listHtml" => ['#list ul li', 'html'],// a链接
+            "title"    => ['#list ul li a', 'text'],// 章节标题
+            "href"     => ['#list ul li a', 'href'],// 章节链接
+        ];
+        $qr = QueryList::get($url)->rules($rule)
+            ->withOptions([
+                'timeout' => 30,
+            ])
+            ->encoding('UTF-8', 'GB2312')
+            ->removeHead()
+            ->query();
+        $data = (array)$qr->getData();
+        // 一维数组的键是`*items`，因此降维处理
+        $data = array_pop($data);
+
+        return $data;
+    }
+
+    public function setListUrl($listUrl = ''): void
     {
         $this->listUrl = $listUrl;
     }
 
-    public function setNovelId($novelId=0)
+    public function setNovelId($novelId = 0)
     {
         $this->novelId = $novelId;
     }

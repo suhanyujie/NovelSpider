@@ -6,7 +6,7 @@
  * 3.C获取到了任务后，就执行自己的逻辑。
  *
  */
-require __DIR__."/../../vendor/autoload.php";
+require __DIR__ . "/../../vendor/autoload.php";
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Novel\NovelSpider\Controller\Test;
@@ -17,7 +17,7 @@ use Workerman\Worker;
 
 // 解析配置文件
 //定义全局常量
-define('ROOT', realpath(__DIR__.'/../../'));
+define('ROOT', realpath(__DIR__ . '/../../'));
 //解析配置文件
 $envConfig = parse_ini_file(ROOT . "/.env", true);
 $dbConfig = $envConfig['start_list_db'] ?? [];
@@ -39,10 +39,11 @@ $capsule->bootEloquent();
 
 // 检测redis连接是否通畅
 try {
-    $redis   = new Predis\Client();
-}catch (\Exception $e) {
+    $redis = new Predis\Client();
+} catch (Exception $e) {
     echo "redis启动异常：\n";
-    echo ($e->getMessage());die;
+    echo($e->getMessage());
+    die;
 }
 
 // 开启worker专门分发任务url数据
@@ -51,16 +52,15 @@ $listTask->count = 1;
 $listTask->user = 'list-process';
 $listKey = NovelCacheKeyConfigService::NOVEL_LIST_KEY;
 $count = 0;
-$listTask->onWorkerStart = function($listTask)
-{
+$listTask->onWorkerStart = function ($listTask) {
     $currentTime = date('Y-m-d H:i:s');
     //获取列表页的逻辑流程如下
     //根据小说id，去抓取列表页，看看列表页中的最新的章节数是否和已存的一致，如果不一致，则进行更新
     $novelService = new NovelService();
     //获取所有正要抓取列表内容的小说
     $novels = $novelService->getNovelList([
-        'novel_status' => [1,3],
-        'limit'=>100,
+        'novel_status' => [1, 3],
+        'limit'        => 100,
     ]);
     if ($novels->count() < 1) {
         $exampleData = [
@@ -77,12 +77,13 @@ $listTask->onWorkerStart = function($listTask)
         $novel->novel_status = 3;// 1列表已抓取  3等待抓取列表
         $novel->insert_date = $currentTime;
         if (!$novel->checkExist([
-            'list_url'=>$novel->list_url,
+            'list_url' => $novel->list_url,
         ])) {
             $novel->save();
             $novels = collect([$novel,]);
         }
     }
+    echo "开始抓取小说列表...\n";
     //针对每个小说 获取他们的列表页
     $novels->map(function ($item) use ($novelService) {
         // 查看list是否存在，不存在，则进行抓取
@@ -95,14 +96,14 @@ $listTask->onWorkerStart = function($listTask)
             $chapterList = $novelService->getList();
             try {
                 $novelService->storeList($chapterList);
-            }catch (\Exception $e) {
-                echo $e->getMessage()."\n";
+            } catch (Exception $e) {
+                echo $e->getMessage() . "\n";
                 return;
             }
         }
         $chapterList = $novelService->getListFromMysql($item->id);
         $listKey = $novelService->getListQueueKey($item->id);
-        $redis   = new Predis\Client();
+        $redis = new Predis\Client();
         $redis->del($listKey);
         try {
             if (!$chapterList) {
@@ -111,7 +112,7 @@ $listTask->onWorkerStart = function($listTask)
                 $novelService->setListQueueKey($listKey);
                 $pushResult = $novelService->pushIntoRedis($chapterList);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e->getMessage() . PHP_EOL;
             return ['status' => $e->getCode(), 'message' => $e->getMessage()];
         }
@@ -122,30 +123,24 @@ $listTask->onWorkerStart = function($listTask)
         echo 'process for list start~' . $length . PHP_EOL;
     });
     // 定时获取最新列表
-    $time_interval = 3600*0.5;
-//    Timer::add($time_interval, function(){
-//        echo "task run\n";
-//        // 如果该列表已经爬取过,那么只需爬取这个列表页的最后几条最新数据,放入redis队列中
-//        $hasSpider = true;
-//    });
+    // $time_interval = 3600 * 0.5;
 };
 
-$listTask->onMessage = function($connection, $data) use ($listKey,$count)
-{
+$listTask->onMessage = function ($connection, $data) use ($listKey, $count) {
     $count++;
-    $data = json_decode($data,true);
-    if($data['args']['contents'] === 'refresh-list'){
+    $data = json_decode($data, true);
+    if ($data['args']['contents'] === 'refresh-list') {
         $redis = new Predis\Client();
         $redis->del($listKey);
         return;
     }
     $novel = new Test();
     $sendData = $novel->getNextTaskData();
-    if(!$sendData){
+    if (!$sendData) {
         $sendData = 0;
     }
     $connection->send(json_encode($sendData));
-    echo 'request recieved '.$count.PHP_EOL;
+    echo 'request recieved ' . $count . PHP_EOL;
 };
 
 // 运行worker
