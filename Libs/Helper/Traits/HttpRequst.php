@@ -14,6 +14,25 @@ trait HttpRequst
 {
     protected $httpTraitData = [];
 
+    /**
+     * 获取 get 参数
+     * @param string $key
+     * @return array|mixed|string
+     */
+    public function get($key = '')
+    {
+        $getData = !empty($this->data['get'])  ? $this->data['get'] : [];
+        if (empty($key)) {
+            return $getData;
+        }
+        return empty($getData[$key]) ? '' : $getData[$key];
+    }
+
+    /**
+     * 发送 http 请求
+     * @param array $paramArr
+     * @return array
+     */
     public function httpRequest($paramArr=[])
     {
         $options = [

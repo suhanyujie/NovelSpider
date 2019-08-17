@@ -12,6 +12,7 @@ use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\Response as ServerResponse;
 use Libs\Core\Store\PrivateStorage;
 use Libs\Helper\Traits\Response as ResponseToolTrait;
+use Libs\Helper\Traits\HttpRequst as HttpRequstTrait;
 
 abstract class Controller
 {
@@ -19,7 +20,10 @@ abstract class Controller
 
     protected $response;
 
-    use ResponseToolTrait;
+    protected $data;
+
+    use ResponseToolTrait, HttpRequstTrait;
+
     /**
      * @desc
      */
@@ -28,5 +32,15 @@ abstract class Controller
 //        $container = PrivateStorage::$container;
 //        $this->request = $container->make('ServerRequest');
 //        $this->response = $container->make('ServerResponse');
+    }
+
+    public function setRequestData($data = [])
+    {
+        $this->data['get'] = isset($data['get']) ? $data['get'] : [];
+        $this->data['post'] = isset($data['post']) ? $data['post'] : [];
+        $this->data['request'] = isset($data['request']) ? $data['request'] : [];
+        $this->data['server'] = isset($data['server']) ? $data['server'] : [];
+        $this->data['cookie'] = isset($data['cookie']) ? $data['cookie'] : [];
+        $this->data['files'] = isset($data['files']) ? $data['files'] : [];
     }
 }

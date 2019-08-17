@@ -15,6 +15,7 @@
 * 前端界面参考 https://github.com/suhanyujie/NovelSpiderFrontend
 
 ## 运行
+* 启动提供 web 服务的程序，**必须**到项目根目录运行：`cd /path/to/NovelSpider; php Novel/NovelAdmin/index.php start`
 * 启动：`./start.sh start`
 * 停止：`./start.sh stop`
 

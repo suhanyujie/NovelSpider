@@ -75,7 +75,7 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
     }
     $requestUri = $data['server']['REQUEST_URI'];
     //根据uri解析对应的控制器和方法名称
-    $response = (new RequestTool)->handleRequest($requestUri);
+    $response = (new RequestTool($data))->handleRequest($requestUri);
     if (!is_string($response)) {
         Response::setAccessAllowHeader();
         $response = json_encode($response, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);

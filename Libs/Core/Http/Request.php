@@ -8,6 +8,8 @@
 
 namespace Libs\Core\Http;
 
+use Exception;
+use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
@@ -16,9 +18,10 @@ use Libs\Core\Http\ConfigLoader;
 
 class Request implements RequestInterface
 {
-    private $headers = [];
+    protected $data = [];
 
     // 存放[小写字母key]对应[原始的key]的数组
+    private $headers = [];
     private $headerNames = [];
     private $protocolVersion = "1.1";
     private $stream;
@@ -26,32 +29,32 @@ class Request implements RequestInterface
     /**
      * @desc 实例化时，将http相关数据进行对应的加载
      */
-    public function __construct($data=[])
+    public function __construct($data = [])
     {
-
+        $this->data['reqeustData'] = $data;
     }
 
-    public function handleRequest($requestUri='')
+    public function handleRequest($requestUri = '')
     {
         try {
             $controllerInfo = RequestTool::getControllerInfo($requestUri);
-            $controller = RequestTool::getControllerIns($controllerInfo['cPath']);
+            $controller = RequestTool::getControllerIns($controllerInfo['cPath'], $this->data['reqeustData']);
             $result = $controller->{$controllerInfo['a']}();
-        }catch (\Exception $e) {
-            return ['status'=>$e->getCode(),'msg'=>$e->getMessage()];
+        } catch (Exception $e) {
+            return ['status' => $e->getCode(), 'msg' => $e->getMessage()];
         }
 
         return $result;
     }
 
     //workerman中将uri信息解析为控制器和方法名
-    public static function getControllerInfo($uri='')
+    public static function getControllerInfo($uri = '')
     {
         $defaultController = ConfigLoader::config('access.http@defaultController');
         $defaultAction = ConfigLoader::config('access.http@defaultAction');
         $arr = explode('?', $uri);
-        $uri = trim($arr[0],'/');
-        $action = substr($uri, strrpos($uri,'/')+1);
+        $uri = trim($arr[0], '/');
+        $action = substr($uri, strrpos($uri, '/') + 1);
         $action = empty($action) ? $defaultAction : $action;
         if (empty($uri)) {
             $uri = "{$defaultController}/{$defaultAction}";
@@ -61,9 +64,9 @@ class Request implements RequestInterface
         $conPath = "";
         if (count($reqArr) > 1) {
             $len = count($reqArr);
-            foreach ($reqArr as $k=>$item) {
+            foreach ($reqArr as $k => $item) {
                 $item = ucwords($item);
-                if ($k == ($len-1)) {
+                if ($k == ($len - 1)) {
                     $conPath .= "/{$item}Controller";
                     break;
                 }
@@ -83,16 +86,17 @@ class Request implements RequestInterface
     /**
      * @desc 获取实例化控制器
      */
-    public static function getControllerIns($cPath='')
+    public static function getControllerIns($cPath = '', $requestData = [])
     {
-        $basePath = ROOT."/Novel/Controllers";
+        $basePath = ROOT . "/Novel/Controllers";
         $baseNamespace = "Novel\Controllers";
-        $className = sprintf("%s%s", $baseNamespace,str_replace('/','\\', $cPath));
+        $className = sprintf("%s%s", $baseNamespace, str_replace('/', '\\', $cPath));
         if (!class_exists($className)) {
-            throw new \Exception("controller {$className} not found!", -2);
+            throw new Exception("controller {$className} not found!", -2);
         }
 
         $controllerIns = new $className();
+        $controllerIns->setRequestData($requestData);
 
         return $controllerIns;
     }
@@ -164,17 +168,27 @@ class Request implements RequestInterface
     }
 
     /**
-     * Checks if a header exists by the given case-insensitive name.
-     * 通过不区分大小写的名字来检查一个header头是否存在
+     * Retrieves a comma-separated string of the values for a single header.
+     * 获取一个单个的header值,它的值是逗号分隔的字符串
+     * This method returns all of the header values of the given
+     * case-insensitive header name as a string concatenated together using
+     * a comma.
+     *
+     * NOTE: Not all header values may be appropriately represented using
+     * comma concatenation. For such headers, use getHeader() instead
+     * and supply your own delimiter when concatenating.
+     *
+     * If the header does not appear in the message, this method MUST return
+     * an empty string.
+     *
      * @param string $name Case-insensitive header field name.
-     * @return bool Returns true if any header names match the given header
-     *     name using a case-insensitive string comparison. Returns false if
-     *     no matching header name is found in the message.
+     * @return string A string of values as provided for the given header
+     *    concatenated together using a comma. If the header does not appear in
+     *    the message, this method MUST return an empty string.
      */
-    public function hasHeader($name)
+    public function getHeaderLine($name)
     {
-        $headerKey = strtolower($name);
-        return isset($this->headerNames[$headerKey]);
+        return implode(',', $this->getHeader($name));
     }
 
     /**
@@ -202,27 +216,17 @@ class Request implements RequestInterface
     }
 
     /**
-     * Retrieves a comma-separated string of the values for a single header.
-     * 获取一个单个的header值,它的值是逗号分隔的字符串
-     * This method returns all of the header values of the given
-     * case-insensitive header name as a string concatenated together using
-     * a comma.
-     *
-     * NOTE: Not all header values may be appropriately represented using
-     * comma concatenation. For such headers, use getHeader() instead
-     * and supply your own delimiter when concatenating.
-     *
-     * If the header does not appear in the message, this method MUST return
-     * an empty string.
-     *
+     * Checks if a header exists by the given case-insensitive name.
+     * 通过不区分大小写的名字来检查一个header头是否存在
      * @param string $name Case-insensitive header field name.
-     * @return string A string of values as provided for the given header
-     *    concatenated together using a comma. If the header does not appear in
-     *    the message, this method MUST return an empty string.
+     * @return bool Returns true if any header names match the given header
+     *     name using a case-insensitive string comparison. Returns false if
+     *     no matching header name is found in the message.
      */
-    public function getHeaderLine($name)
+    public function hasHeader($name)
     {
-        return implode(',', $this->getHeader($name));
+        $headerKey = strtolower($name);
+        return isset($this->headerNames[$headerKey]);
     }
 
     /**
@@ -238,11 +242,11 @@ class Request implements RequestInterface
      * @param string $name Case-insensitive header field name.
      * @param string|string[] $value Header value(s).
      * @return static
-     * @throws \InvalidArgumentException for invalid header names or values.
+     * @throws InvalidArgumentException for invalid header names or values.
      */
     public function withHeader($name, $value)
     {
-        if (!is_array($value)){
+        if (!is_array($value)) {
             $value = [$value];
         }
         $value = $this->trimHeaderValues($value);
@@ -254,6 +258,20 @@ class Request implements RequestInterface
         $new->headerNames[$normalized] = $name;
         $new->headers[$normalized] = $value;
         return $new;
+    }
+
+    /**
+     * @desc: 去除消息体两边的空白字符
+     * @param String $param
+     * @return Array
+     * @author:Samuel Su(suhanyu)
+     * @date:17/8/1
+     */
+    private function trimHeaderValues(array $values)
+    {
+        return array_map(function ($value) {
+            return trim($value);
+        }, $values);
     }
 
     /**
@@ -270,11 +288,11 @@ class Request implements RequestInterface
      * @param string $name Case-insensitive header field name to add.
      * @param string|string[] $value Header value(s).
      * @return static
-     * @throws \InvalidArgumentException for invalid header names or values.
+     * @throws InvalidArgumentException for invalid header names or values.
      */
     public function withAddedHeader($name, $value)
     {
-        if (!is_array($value)){
+        if (!is_array($value)) {
             $value = [$value];
         }
         $value = $this->trimHeaderValues($value);
@@ -336,7 +354,7 @@ class Request implements RequestInterface
      *
      * @param StreamInterface $body Body.
      * @return static
-     * @throws \InvalidArgumentException When the body is not valid.
+     * @throws InvalidArgumentException When the body is not valid.
      */
     public function withBody(StreamInterface $body)
     {
@@ -409,7 +427,7 @@ class Request implements RequestInterface
      *
      * @param string $method Case-sensitive method.
      * @return static
-     * @throws \InvalidArgumentException for invalid HTTP methods.
+     * @throws InvalidArgumentException for invalid HTTP methods.
      */
     public function withMethod($method)
     {
@@ -463,18 +481,5 @@ class Request implements RequestInterface
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
         // TODO: Implement withUri() method.
-    }
-
-    /**
-     * @desc: 去除消息体两边的空白字符
-     * @author:Samuel Su(suhanyu)
-     * @date:17/8/1
-     * @param String $param
-     * @return Array
-     */
-    private function trimHeaderValues(array $values) {
-        return array_map(function($value){
-            return trim($value);
-        }, $values);
     }
 }

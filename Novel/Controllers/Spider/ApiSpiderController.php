@@ -46,7 +46,7 @@ class ApiSpiderController extends Controller
         ];
         $result = $this->mainListModel->getList($paramArr);
         $returnArr = [
-            'code' => 200,
+            'code' => 1,
             'data' => $result,
         ];
         return $this->json($returnArr);
@@ -58,7 +58,23 @@ class ApiSpiderController extends Controller
      */
     public function desc()
     {
-
+        $id = $this->get('id');
+        if (empty($id)) {
+            $result = [];
+        } else {
+            $paramArr = [
+                'id'     => $id,
+                'offset' => 0,
+                'limit'  => 1,
+            ];
+            $result = $this->mainListModel->getList($paramArr);
+            !empty($result) && $result = array_pop($result);
+        }
+        $returnArr = [
+            'code' => 1,
+            'data' => $result,
+        ];
+        return $this->json($returnArr);
     }
 
     /**
@@ -72,10 +88,15 @@ class ApiSpiderController extends Controller
 
     /**
      * 章节详情
-     * /Spider/ApiSpider/detail
+     * /Spider/ApiSpider/detail/?fid=x&cid=xx
      */
     public function detail()
     {
+        $getData = $this->get();
+        // 小说 id
+        $fid = $getData['fid'] ?? 0;
+        // 指定的小说章节 id
+        $cid = $getData['cid'] ?? 0;
 
     }
 }
