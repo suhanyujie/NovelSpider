@@ -123,6 +123,7 @@ $listTask->onWorkerStart = function ($listTask) {
         echo 'process for list start~' . $length . PHP_EOL;
     });
     // 定时获取最新列表
+    // todo
     // $time_interval = 3600 * 0.5;
 };
 
