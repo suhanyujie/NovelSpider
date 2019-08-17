@@ -89,7 +89,7 @@ class NovelService
                     'url'         => $oneChapter['href'],
                     'name'        => $oneChapter['title'],
                     'chapter_num' => $chapterNum,
-                    'flag'        => 2,// 未抓取的列表的flag为2
+                    'flag'        => 2,// 未抓取的列表的 flag 为 2
                     'err_flag'    => 0,
                     'add_time'    => $nowTime,
                     'update_time' => $nowTime,
