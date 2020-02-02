@@ -1,4 +1,33 @@
 <?php
+$str = null;
+$arr = (array)$str;
+$arr = array_pop($arr);
+var_dump($arr);
+die;
+
+$arr = [12, 9, 10, 43, 78, 54, 9];
+function insertSort($arr = []) 
+{
+    if (empty($arr)) {
+        return $arr;
+    }
+    for ($i=1; $i < count($arr); $i++) { 
+        $compNum = $arr[$i];
+        for ($j=$i-1; $j >= 0; $j--) { 
+            if ($arr[$j] > $arr[$j + 1]) {
+                $tmp = $arr[$j];
+                $arr[$j] = $arr[$j + 1];
+                $arr[$j + 1] = $tmp;
+            }
+        }
+    }
+    return $arr;
+}
+var_dump(insertSort($arr));
+die;
+
+exit();
+
 //require 'vendor/autoload.php';
 //
 //use GuzzleHttp\Client;
