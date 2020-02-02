@@ -45,6 +45,11 @@ class NovelListModel extends Eloquent
     const UPDATED_AT = null;
     const CREATED_AT = null;
 
+    // 小说章节未抓取状态
+    const FLAG_CHAPTER_NOT_CRAWL = 2;
+    // 小说章节已抓取状态
+    const FLAG_CHAPTER_HAS_CRAWL = 1;
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

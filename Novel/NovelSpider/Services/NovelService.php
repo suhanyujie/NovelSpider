@@ -86,10 +86,11 @@ class NovelService
                 }
                 $insertMulData[] = $attributes = [
                     'novel_id'    => $this->novelId,
-                    'url'         => $oneChapter['href'],
                     'name'        => $oneChapter['title'],
                     'chapter_num' => $chapterNum,
-                    'flag'        => 2,// 未抓取的列表的 flag 为 2
+                    'url'         => $oneChapter['href'],
+                    'desc'        => $oneChapter['desc'] ?? '',
+                    'flag'        => NovelListModel::FLAG_CHAPTER_NOT_CRAWL,// 未抓取章节内容的章节的 flag 为 2
                     'err_flag'    => 0,
                     'add_time'    => $nowTime,
                     'update_time' => $nowTime,
@@ -433,27 +434,50 @@ class NovelService
         $url = 'http://www.biquwu.cc/biquge/17_17308/';
         $url = $this->listUrl ?? $url;
         $rule = [
-            "listHtml" => ['#list ul li', 'html'],// a链接
-            "title"    => ['#list ul li a', 'text'],// 章节标题
-            "href"     => ['#list ul li a', 'href'],// 章节链接
+            "listHtml" => ['#list dd a', 'html'],// a链接
+            "title"    => ['#list dd a', 'text'],// 章节标题
+            "href"     => ['#list dd a', 'href'],// 章节链接
         ];
-        $qr = QueryList::get($url)->rules($rule)
-            ->withOptions([
-                'timeout' => 30,
-            ])
+        $qr = QueryList::get($url, null, ['timeout'=>30,])->rules($rule)
             ->encoding('UTF-8', 'GB2312')
             ->removeHead()
             ->query();
-        $data = (array)$qr->getData();
+        $data = (array)$qr->getData(function ($item) {
+            $item['full_url'] = $this->getBaseUrl()."{$item['href']}";
+            return $item;
+        });
         // 一维数组的键是`*items`，因此降维处理
         $data = array_pop($data);
 
         return $data;
     }
 
-    public function setListUrl($listUrl = ''): void
+    /**
+     * @desc 设定 list url 需要用于抓取章节列表
+     * @param string $listUrl
+     * @return void
+     */
+    public function setListUrl($listUrl = '')
     {
         $this->listUrl = $listUrl;
+    }
+
+    /**
+     * @desc 设定 base url 用于抓取小说的域名 如 https://www.baidu.com
+     * @param string $url
+     * @return void
+     */
+    public function setBaseUrl($url = '')
+    {
+        $this->baseUrl = $url;
+    }
+
+    /**
+     * @desc 获取 base url 内容
+     */
+    public function getBaseUrl()
+    {
+        return rtrim($this->baseUrl, '/');
     }
 
     public function setNovelId($novelId = 0)

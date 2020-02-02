@@ -92,6 +92,7 @@ $listTask->onWorkerStart = function ($listTask) {
         if (!$listExist) {
             $oneOfList = (new NovelMainModel)->find($item->id);
             $novelService->setListUrl($oneOfList->list_url);
+            $novelService->setBaseUrl($oneOfList->base_url);
             $novelService->setNovelId($item->id);
             $chapterList = $novelService->getList();
             try {

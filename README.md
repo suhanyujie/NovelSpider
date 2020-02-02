@@ -22,7 +22,8 @@
 
 ### 使用
 #### 抓取某一个小说
-* 
+* 抓取列表 `php Novel/NovelSpider/start_list.php start`
+* 抓取章节内容 `php Novel/NovelSpider/start_detail.php`
 
 ## 一些注意事项
 * 更新workerman的软件包 `composer update workerman/workerman`
