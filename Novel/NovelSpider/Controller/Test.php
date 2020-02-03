@@ -32,8 +32,8 @@ class Test
             }
             $redisConfig = $envConfigArr['redis_config'];
             $backupParam    = [
-                'host'     => $redisConfig['HOST'],
-                'port'     => 6379,
+                'host'     => $redisConfig['HOST'] ?? '127.0.0.1',
+                'port'     => $redisConfig['PORT'] ?? 6379,
                 'database' => 0,
             ];
             $redis          = new \Predis\Client();
@@ -137,25 +137,11 @@ class Test
             $message = date('Y-m-d H:i:s') . "-->没有url可以抓取详情啦~" . PHP_EOL;
             return ['status' => 8300, 'message' => $message];
         }
-        /*
-        $url = $taskData['url'];
-        //$url = 'http://www.biquwu.cc/biquge/17_17308/c5056844.html';// test data
-        //->encoding('UTF-8','GB2312')
-        $hj                    = QueryList::get($url)->rules([
-            "title"   => ['.bookname>h1', 'html'],
-            "content" => ['#content', 'html'],
-        ])->query(function ($item) {
-            $item['title']   = iconv('gbk', 'utf-8//IGNORE', $item['title']);
-            $item['content'] = iconv('gbk', 'utf-8//IGNORE', $item['content']);
-            return $item;
-        })->getData();
-        $detailData            = $hj->first();
-        */
         $url = $taskData['url'];
         $rule = [
-            "content" => ['#content', 'text'],// a链接
+            "content" => ['#content', 'text'],// 小说内容
         ];
-        $qr = QueryList::get($url)->rules($rule)
+        $qr = QueryList::get($url, null, ['connect_timeout'=>30,])->rules($rule)
             ->encoding('UTF-8','GB2312')
             ->removeHead()
             ->query();

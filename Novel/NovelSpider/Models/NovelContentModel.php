@@ -25,6 +25,11 @@ class NovelContentModel extends Eloquent
         'delete_flag',
     ];
 
+    // 未删除状态
+    const NOT_DELETE = 0;
+    // 已删除状态
+    const IS_DELETE = 1;
+
     /**
      * 内容的新增或更新
      * @param array $paramArr

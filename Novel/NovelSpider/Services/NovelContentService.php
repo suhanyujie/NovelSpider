@@ -89,7 +89,7 @@ class NovelContentService
             'title'       => $oneTaskData['name'],
             'content'     => $content,
             'add_time'    => $curTime,
-            'delete_flag' => 0,
+            'delete_flag' => NovelContentModel::NOT_DELETE,
             'err_flag'    => 0,
         ];
         $saveResult = $contentModel->detailInsertOrUpdate([

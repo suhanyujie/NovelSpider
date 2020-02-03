@@ -4,7 +4,6 @@ require __DIR__ . "/../../vendor/autoload.php";
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Novel\NovelSpider\Controller\Test;
 use Novel\NovelSpider\Services\DataCacheService;
-use Predis\Client;
 use Workerman\Lib\Timer;
 use Workerman\Worker;
 use Novel\NovelSpider\Services\NovelContentService;
@@ -37,7 +36,7 @@ $capsule->bootEloquent();
 
 $task = new Worker();
 // 开启多少个进程运行定时任务，注意多进程并发问题
-$task->count = 2;
+$task->count = $envConfig['first_section']['DETAIL_PROCESS_NUM'];
 $task->onWorkerStart = function ($task) {
     $novelService = new NovelService();
     $novels = $novelService->getNovelList([
@@ -53,7 +52,6 @@ $task->onWorkerStart = function ($task) {
         $listKey = $novelService->getListQueueKey($novelId);
         $redis = new Predis\Client();
         $contentService = new NovelContentService();
-        StatusChangeService::setStatusChapterDetailCollected($novelId);
         // 只在id编号为0的进程上设置定时器，其它1、2、3号进程不设置定时器
         echo "worker " . $task->id . " start for detail~" . PHP_EOL;
         while (1) {
@@ -68,10 +66,15 @@ $task->onWorkerStart = function ($task) {
             // $oneData = '{"id":2462,"novel_id":6,"name":"\\u7b2c2118\\u7ae0\\u91cd\\u78c5","chapter_num":2,"url":"https:\\/\\/www.biquge5.com\\/1_1216\\/19896689.html","desc":"","flag":2,"err_flag":0,"add_time":"2019-04-27 18:04:40","update_time":"2019-04-27 18:04:40"}';
             //取出单个数据后，获取具体的详细信息
             $oneData = json_decode($oneData, true);
+            // 如果地址是 uri 则拼接成url
+            if (strpos($oneData['url'], 'http') === false) {
+                $oneData['url'] = $item->base_url.$oneData['url'];
+            }
             try {
                 $contentService->crawlingGetDetail($oneData, $task->id);
             } catch (Exception $e) {
-                echo "Error:\t" . $e->getMessage();
+                echo "Error:\t" . $e->getMessage()."\t".$e->getFile()."\t".$e->getLine().
+                    "\t"."章节：{$oneData['name']}"." 地址：{$oneData['url']}"."\n";
             }
             $random = mt_rand(3, 6);
             sleep($random);
