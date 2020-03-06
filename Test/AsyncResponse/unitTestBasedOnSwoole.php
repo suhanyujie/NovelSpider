@@ -5,22 +5,27 @@
 
 class CustomerTest
 {
-    // 执行单个单元测试
+    /**
+     * 执行单个单元测试
+     *  执行一个测试单元就是测试器的 run 方法
+     *  run 方法的参数如何定义？如何传参？
+     *      使用 curl 方式时，参数是 url，校验使用”闭包“
+     */
     public function runOneTest($index = 0)
     {
         co::sleep(1);
-        
-
         echo "hello test {$index}\n";
     }
 
 }
-$testObj = (new CustomerTest());
 
+$testObj = (new CustomerTest());
 
 interface Executor 
 {
     public function run();
+
+    public function assert($mixed);
 }
 
 // 使用 bash curl 调用进行接口测试
@@ -34,6 +39,11 @@ class Unit1Exec implements Executor
 
         return $output;
     }
+
+    public function assert($mixed)
+    {
+
+    }
 }
 
 // 使用 PHP curl 调用进行接口测试
@@ -41,7 +51,13 @@ class Unit2Exec implements Executor
 {
     public function run($url = '')
     {
-        return $this->get($url);
+        $this->data['result'] = $this->get($url);
+        return $this;
+    }
+
+    public function assert($mixed)
+    {
+        return true;
     }
 
     protected function get($url = '')
@@ -85,6 +101,11 @@ class Unit3Exec implements Executor
     {
         $host = parse_url($url, PHP_URL_HOST);
         return $this->get($host, '/');
+    }
+    
+    public function assert($mixed)
+    {
+
     }
 
     protected function get($host = '', $path = '/')
