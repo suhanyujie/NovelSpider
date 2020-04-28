@@ -431,12 +431,14 @@ class NovelService
 
     public function getList()
     {
+        global $envConfig;
+        $defaultNovelConfig = $envConfig['first_section'] ?? [];
         $url = 'http://www.biquwu.cc/biquge/17_17308/';
         $url = $this->listUrl ?? $url;
         $rule = [
-            "listHtml" => ['#list dd a', 'html'],// a链接
-            "title"    => ['#list dd a', 'text'],// 章节标题
-            "href"     => ['#list dd a', 'href'],// 章节链接
+            "listHtml" => [$defaultNovelConfig['DEFAULT_NOVEL_LIST_A_RULE'] ?? '', 'html'],// a链接
+            "title"    => [$defaultNovelConfig['DEFAULT_NOVEL_LIST_TITLE_RULE'] ?? '', 'text'],// 章节标题
+            "href"     => [$defaultNovelConfig['DEFAULT_NOVEL_LIST_LINK_RULE'] ?? '', 'href'],// 章节链接
         ];
         $qr = QueryList::get($url, null, ['timeout'=>30,])->rules($rule)
             ->encoding('UTF-8', 'GB2312')

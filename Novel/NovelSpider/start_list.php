@@ -21,6 +21,7 @@ define('ROOT', realpath(__DIR__ . '/../../'));
 //解析配置文件
 $envConfig = parse_ini_file(ROOT . "/.env", true);
 $dbConfig = $envConfig['start_list_db'] ?? [];
+$defaultNovelConfig = $envConfig['first_section'] ?? [];
 //数据库加载配置文件
 $database = [
     'driver'    => 'mysql',
@@ -52,7 +53,7 @@ $listTask->count = 1;
 $listTask->user = 'list-process';
 $listKey = NovelCacheKeyConfigService::NOVEL_LIST_KEY;
 $count = 0;
-$listTask->onWorkerStart = function ($listTask) {
+$listTask->onWorkerStart = function ($listTask) use ($defaultNovelConfig) {
     $currentTime = date('Y-m-d H:i:s');
     //获取列表页的逻辑流程如下
     //根据小说id，去抓取列表页，看看列表页中的最新的章节数是否和已存的一致，如果不一致，则进行更新
@@ -64,12 +65,15 @@ $listTask->onWorkerStart = function ($listTask) {
     ]);
     if ($novels->count() < 1) {
         $exampleData = [
-            'name'         => "权力巅峰",
-            'list_url'     => "https://www.biquge5.com/1_1216/",
-            'base_url'     => "https://www.biquge5.com",
+            'name'         => $defaultNovelConfig['DEFAULT_NOVEL_NAME'] ?? '',
+            'list_url'     => $defaultNovelConfig['DEFAULT_NOVEL_LIST_URL'] ?? '',
+            'base_url'     => $defaultNovelConfig['DEFAULT_NOVEL_BASE_URL'] ?? '',
             'novel_status' => 3,
             'insert_date'  => $currentTime,
         ];
+        if (empty($exampleData['list_url'])) {
+            throw new \Exception("示例novel列表地址为空，请在 `.env` 中配置", -1);
+        }
         $novel = new NovelMainModel();
         $novel->name = $exampleData['name'];
         $novel->list_url = $exampleData['list_url'];
@@ -109,6 +113,7 @@ $listTask->onWorkerStart = function ($listTask) {
         try {
             if (!$chapterList) {
                 echo "Mysql中也没有尚未抓取的url啦~1\n";
+                return null;
             } else {
                 $novelService->setListQueueKey($listKey);
                 $pushResult = $novelService->pushIntoRedis($chapterList);
@@ -126,6 +131,7 @@ $listTask->onWorkerStart = function ($listTask) {
     // 定时获取最新列表
     // todo
     // $time_interval = 3600 * 0.5;
+    echo "end\n";
 };
 
 $listTask->onMessage = function ($connection, $data) use ($listKey, $count) {
