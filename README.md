@@ -19,18 +19,22 @@
 ### 安装(install)
 * 前端界面参考 https://github.com/suhanyujie/NovelSpiderFrontend
 
+### 配置
+* `cp env.example .env`
+* 在 `.env` 文件中配置好对应的环境信息
+* 安装 composer 依赖：`composer install`
+
 ### 运行
-* 启动提供 web 服务的程序，**必须**到项目根目录运行：`cd /path/to/NovelSpider; php Novel/NovelAdmin/index.php start`
+* 启动提供 web 服务的程序，**必须**到项目根目录运行：`php Novel/NovelAdmin/index.php start`
 * 启动：`./start.sh start`
 * 停止：`./start.sh stop`
 
 #### 抓取某一个小说
 * 抓取列表 `php Novel/NovelSpider/start_list.php start`
-* 抓取章节内容 `php Novel/NovelSpider/start_detail.php`
+* 抓取章节内容 `php Novel/NovelSpider/start_detail.php start`
 
 ## 一些注意事项
-* 更新workerman的软件包 `composer update workerman/workerman`
-* 截止20181102，目前已经将数据的orm改为 `laravel` 的 `Illuminate database`，详细使用可以参考[官方库](https://github.com/illuminate/database)的文档示例
+* 更新 workerman 的软件包 `composer update workerman/workerman`
 
 ### composer 镜像源
 * 可以先把 composer.lock 文件删除，配置阿里的镜像源 `composer config repo.packagist composer https://mirrors.aliyun.com/composer/`
