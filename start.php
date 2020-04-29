@@ -10,5 +10,8 @@ exec($cmd);
 $cmd = "php Novel/NovelAdmin/index.php start -d";
 exec($cmd);
 
+// 导出某个小说为 txt 文本 todo
+
+
 echo PHP_EOL;
 echo "启动完成 \n";

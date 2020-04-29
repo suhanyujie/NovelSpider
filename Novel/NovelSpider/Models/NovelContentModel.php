@@ -6,6 +6,9 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 
 class NovelContentModel extends Eloquent
 {
+    /**@var NovelContentModel  */
+    public static $instance;
+
     protected $table = 'novel_content';
 
     // 禁用 Laravel 的时间戳字段数据属性
@@ -68,5 +71,30 @@ class NovelContentModel extends Eloquent
         } else {
             return ['status' => 1, 'message' => $message . '成功！', 'data' => $result,];
         }
+    }
+
+    /**
+     * @desc 获取列表
+     */
+    public static function getList($params = [])
+    {
+        $options = [
+            'where'    => [],
+            'in_query' => [],
+            'fields'   => ['*'],
+            'offset'   => 0,
+            'limit'    => 1,
+        ];
+        $options = array_merge($options, $params);
+        if (empty(self::$instance)) {
+            self::$instance = new self();
+        }
+        $model = self::$instance->select($options['fields']);
+        if (!empty($options['where'])) {
+            $model->where($options['where']);
+        }
+        $dataList = $model->skip($options['offset'])->limit($options['limit']);
+
+        return $dataList;
     }
 }

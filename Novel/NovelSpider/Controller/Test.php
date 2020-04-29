@@ -77,6 +77,7 @@ class Test
     public function getNovelList($paramArr = [])
     {
         $options = [
+            'where'=>[],
             'novel_status' => '',//
             'fields'       => '*',// string 查询字段
             'isCount'      => '',// 可选：1 是否只返回数据的数量
@@ -84,11 +85,16 @@ class Test
             'offset'       => 0,// 可选 int mysql查询数据的偏移量
             'limit'        => 1,// 可选 int mysql查询数据的条数限制
         ];
-        is_array($paramArr) && $options = array_merge($options, $paramArr);
-        extract($options);
+        $options = array_merge($options, $paramArr);
         $model = new NovelMainModel();
+        if (empty($options['fields'])) {
+            $model = $model->select($options['*']);
+        }
         if (!empty($novel_status)) {
             $model = $model->where('novel_status', $novel_status);
+        }
+        if (!empty($options['where'])) {
+            $model->where($options['where']);
         }
         if (!empty($isCount)) {
             return $model->count();
@@ -101,12 +107,12 @@ class Test
         } else {
             $model = $model->orderby('id', 'desc');
         }
-        $model = $model->offset($offset)->limit($limit);
+        $model = $model->offset($options['offset'])->limit($options['limit']);
         if (!empty($debug)) {
             echo $model->toSql();
             exit();
         }
-        $data = $model->get([$fields]);
+        $data = $model->get([$options['fields']]);
 
         return $data;
     }

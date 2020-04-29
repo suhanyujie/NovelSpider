@@ -28,6 +28,16 @@ class NovelContentService
 
     }
 
+
+    /**
+     * @desc 获取一个 novel 的所有章节列表
+     */
+    public function getOneNovelContentList($id = 0)
+    {
+        if (empty($id)) return [];
+
+    }
+
     /**
      * 抓取详情
      * @param array $oneTaskData
