@@ -82,6 +82,7 @@ class NovelContentModel extends Eloquent
             'where'    => [],
             'in_query' => [],
             'fields'   => ['*'],
+            'order_by' => ['id' => 'desc',],
             'offset'   => 0,
             'limit'    => 1,
         ];
@@ -93,8 +94,13 @@ class NovelContentModel extends Eloquent
         if (!empty($options['where'])) {
             $model->where($options['where']);
         }
-        $dataList = $model->skip($options['offset'])->limit($options['limit']);
+        if (!empty($options['order_by'])) {
+            foreach ($options['order_by'] as $column => $type) {
+                $model->orderBy($column, $type);
+            }
+        }
+        $dataCollect = $model->skip($options['offset'])->limit($options['limit'])->get();
 
-        return $dataList;
+        return $dataCollect;
     }
 }
