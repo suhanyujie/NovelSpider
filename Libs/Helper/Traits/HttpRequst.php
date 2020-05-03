@@ -40,20 +40,23 @@ trait HttpRequst
             'method' => 'post',//
             'header' => [],
             'body'   => '',
+            'multipart'   => [],
             'debug'  => '',
         ];
         is_array($paramArr) && $options = array_merge($options, $paramArr);
         extract($options);
         $httpClient = $this->getClient();
         try {
-            $response = $httpClient->request($options['method'], $options['url'], [
-                'headers' => $options['header'],
-                'body'    => $options['body'],
+            $response = $httpClient->request(strtoupper($options['method']), $options['url'], [
+                'headers'   => $options['header'],
+                'body'      => $options['body'],
+                'multipart' => $options['multipart'],
             ]);
         } catch (\Exception $e) {
             return ['status' => $e->getCode(), 'message' => '请求错误，原因：' . $e->getMessage()];
         }
         $responseBodyStr = (string)$response->getBody();
+        var_dump($responseBodyStr);exit(PHP_EOL.'11:20'.PHP_EOL);
         if ($options['debug'] == 2) {
             echo $responseBodyStr;exit('--debug--'.PHP_EOL);
         }

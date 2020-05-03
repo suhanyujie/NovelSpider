@@ -1,0 +1,38 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: suhanyu
+ * Date: 2020-05-03
+ * Time: 10:23
+ */
+
+namespace Libs\Helper;
+
+use Libs\Helper\Traits\HttpRequst;
+
+class CurlRequest
+{
+    /**@var CurlRequest */
+    public static $singleInstance;
+
+    use HttpRequst;
+
+    /**
+     * @desc post 请求
+     */
+    public static function post($params = [])
+    {
+        $options = [
+            'url'    => '',
+            'method' => 'post',//
+            'header' => [],
+            'body'   => '',
+        ];
+        $options = array_merge($options, $params);
+        if (empty(self::$singleInstance)) {
+            self::$singleInstance = new self();
+        }
+        $result = self::$singleInstance->httpRequest($options);
+        var_dump($result);exit(PHP_EOL.'10:31'.PHP_EOL);
+    }
+}
