@@ -56,7 +56,6 @@ trait HttpRequst
             return ['status' => $e->getCode(), 'message' => '请求错误，原因：' . $e->getMessage()];
         }
         $responseBodyStr = (string)$response->getBody();
-        var_dump($responseBodyStr);exit(PHP_EOL.'11:20'.PHP_EOL);
         if ($options['debug'] == 2) {
             echo $responseBodyStr;exit('--debug--'.PHP_EOL);
         }

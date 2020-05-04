@@ -26,10 +26,7 @@ $signature = $params[1] ?? '';
 if (empty($signature)) throw new \Exception("请传入正确的脚本命令！", -1);
 $obj = $classBox[$signature] ?? '';
 if (empty($obj)) throw new \Exception("无法识别的命令行脚本！", -2);
-$output = $obj->handle();
-if (!empty($output)) {
-    echo json_encode($output, 320);die;
-}
+$obj->handle();
 die;
 
 // 获取并解析命令行脚本

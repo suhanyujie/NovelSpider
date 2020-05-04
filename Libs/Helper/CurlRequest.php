@@ -33,6 +33,6 @@ class CurlRequest
             self::$singleInstance = new self();
         }
         $result = self::$singleInstance->httpRequest($options);
-        var_dump($result);exit(PHP_EOL.'10:31'.PHP_EOL);
+        // todo
     }
 }
