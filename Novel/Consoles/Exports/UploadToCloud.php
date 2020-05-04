@@ -60,7 +60,7 @@ class UploadToCloud extends BaseConsole implements CliInterface
                 'Cookie'           => 'PHPSESSID=5565fd97bda5c895a2b269514a26899d',
             ],
             'post_data'=>[
-                'files[]'=> new \CURLFILE('/Users/suhanyu/Documents/占位图/image.png'),
+                'files[]'=> new \CURLFILE($file),
                 'u_key' => '0f9d894330c628a20a71a57f2cf9542f'
             ],
         ]);
@@ -83,7 +83,10 @@ class UploadToCloud extends BaseConsole implements CliInterface
         }
         */
         $result = self::getUploadedInfo($firstFileRes);
-        echo "下载链接：".$result['downloadLink'] ?? '' . PHP_EOL;
+        $dlLink = $result['downloadLink'] ?? '';
+        echo "下载链接：[".$dlLink."] -----\t" . PHP_EOL;
+        // 终端中打开浏览器 https://blog.csdn.net/jiezhi2013/article/details/40050049
+        exec("open \"{$result['qrCodeUrl']}\"");
 
         // return $result;
     }
