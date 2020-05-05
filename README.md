@@ -12,12 +12,6 @@
 * redis 服务
 * PHP >= 7.2
 
-## 类库
-* 数据库 orm，使用`illuminate/database`
-* workerman 框架,来自第三方. https://github.com/walkor/Workerman
-* DOM 解析，[querylist](http://doc.querylist.cc/)。
-* 前端界面是基于：[iview-admin](https://github.com/iview/iview-admin)，仓库地址是：https://github.com/suhanyujie/NovelSpiderFrontend
-
 ## 使用
 ### docker 环境
 * todo （待实现）
@@ -73,3 +67,9 @@
 
 ## 参考
 * workerman 官方手册 http://doc.workerman.net/
+
+### 类库
+* 数据库 orm，使用`illuminate/database`
+* workerman 框架,来自第三方. https://github.com/walkor/Workerman
+* DOM 解析，[querylist](http://doc.querylist.cc/)。
+* 前端界面是基于：[iview-admin](https://github.com/iview/iview-admin)，仓库地址是：https://github.com/suhanyujie/NovelSpiderFrontend
