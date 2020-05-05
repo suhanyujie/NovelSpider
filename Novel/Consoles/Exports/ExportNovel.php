@@ -14,6 +14,12 @@ use Config\Db;
 use Novel\NovelSpider\Models\NovelContentModel;
 use Novel\NovelSpider\Models\NovelMainModel;
 
+/**
+ * 导出小说为 txt 文件
+ * @cmd php Novel/Consoles/index.php novel:exportTxt 10
+ * Class ExportNovel
+ * @package Novel\Consoles\Exports
+ */
 class ExportNovel extends BaseConsole implements CliInterface
 {
     protected $data = [];
@@ -48,7 +54,7 @@ class ExportNovel extends BaseConsole implements CliInterface
             $oneChapterContent = $this->getOneChapterContent($oneChapter);
 
             // 将数据写入到 txt 文件
-            $dest = "dist/test.txt";
+            $dest = "dist/{$novel['name']}.txt";
             @file_put_contents($dest, $oneChapterContent, FILE_APPEND);
         }
         echo "end\n";

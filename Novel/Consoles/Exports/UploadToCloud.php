@@ -10,9 +10,11 @@ namespace Novel\Consoles\Exports;
 
 use Novel\Consoles\BaseConsole;
 use Novel\Consoles\CliInterface;
+use Novel\NovelSpider\Models\NovelMainModel;
 
 /**
  * 将文件上传到云端短暂保存 保存 14 天
+ * @cmd php Novel/Consoles/index.php novel:uploadToCloud 10
  * Class UploadToCloud
  * @package Novel\Consoles\Exports
  */
@@ -26,7 +28,22 @@ class UploadToCloud extends BaseConsole implements CliInterface
 
     public function handle()
     {
-        $file = 'dist/test.txt';
+        global $argv;
+        // 1th param is signature
+        $novelId = $argv[2] ?? '';
+        $list = (new NovelMainModel)->getList([
+            'id'=>$novelId,
+            'limit'=>1,
+        ]);
+        if (empty($list)) {
+            throw new \Exception("该小说不存在！", -1);
+        }
+        $novel = $list[0] ?? [];
+        $name = $novel['name'] ?? '';
+        $file = "dist/{$name}.txt";
+        if (!file_exists($file)) {
+            throw new \Exception("该小说txt文件不存在！", -2);
+        }
 //        $result = CurlRequest::post([
 //            'url'    => 'https://bitsend.jp/jqu/',
 //            'method' => 'POST',
@@ -84,7 +101,7 @@ class UploadToCloud extends BaseConsole implements CliInterface
         */
         $result = self::getUploadedInfo($firstFileRes);
         $dlLink = $result['downloadLink'] ?? '';
-        echo "下载链接：[".$dlLink."] -----\t" . PHP_EOL;
+        echo "下载链接：[".$dlLink."] \t" . PHP_EOL;
         // 终端中打开浏览器 https://blog.csdn.net/jiezhi2013/article/details/40050049
         exec("open \"{$result['qrCodeUrl']}\"");
 
