@@ -29,9 +29,11 @@
 * 启动：`./start.sh start`
 * 停止：`./start.sh stop`
 
-#### 抓取某一个小说
+#### 功能使用
 * 抓取列表 `php Novel/NovelSpider/start_list.php start`
 * 抓取章节内容 `php Novel/NovelSpider/start_detail.php start`
+* 将小说导出为 txt 文件：`php Novel/Consoles/index.php novel:exportTxt 10`，其中 10 是小说id
+* 通过二维码下载小说：`php Novel/Consoles/index.php novel:uploadToCloud 10`，其中 10 是小说id
 
 ## 一些注意事项
 * 更新 workerman 的软件包 `composer update workerman/workerman`
@@ -48,8 +50,8 @@
 * 一个单独的进程，会有定时器，定时循环所有小说看他们是否产生最新连载。 20170422
 * 一旦有发现一个，则将其尚未爬取的章节加入到“爬取详情页”的任务队列
 
-#### 小说主表
-* 新建一张表,防止每部小说的列表信息,一部小说只有一条 novel_main
+#### 数据表
+* `novel_main` 一部小说一条记录 
 
 ##### 处理状态流程图
 * ![deal_status_transfer](./doc/images/deal_status_transfer.png)
@@ -63,7 +65,6 @@
 * 更换出具库的查询工具 20181102
 * 建立好测试目录,引入phpunit 20170423
 * 编写测试代码.已成功在本地运行一个测试代码
-
 
 ## 参考
 * workerman 官方手册 http://doc.workerman.net/
