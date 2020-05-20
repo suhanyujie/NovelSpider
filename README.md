@@ -14,7 +14,10 @@
 
 ## 使用
 ### docker 环境
-* todo （待实现）
+* 构建镜像 `docker build . --file ./Dockerfile --tag {your_tagname}`
+* 也可以直接拉取我构建好的镜像 
+    * `docker pull suhanyujie/novel_spider:latest`
+    * `docker run --name novel_spider -d suhanyujie/novel_spider:latest`
 
 ### 安装(install)
 * 前端界面参考 https://github.com/suhanyujie/NovelSpiderFrontend
