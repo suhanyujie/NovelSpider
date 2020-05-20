@@ -1,7 +1,5 @@
-#!/bin/bash
-#MyPcIp="192.168.255.161"
-#echo ${MyPcIp}
-
+#!/usr/bin/env bash
+#
 param1=$1
 
 case ${param1} in
