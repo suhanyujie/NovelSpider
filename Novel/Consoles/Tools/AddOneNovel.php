@@ -36,15 +36,20 @@ class AddOneNovel extends BaseConsole implements CliInterface
         $service = new NovelMainService();
         $info = $service->getOneNovelInfoByUrl($novelUrl);
         $curDatetime = date('Y-m-d H:i:s');
+        $newData = [
+            'name'         => $info['name'] ?? '',
+            'base_url'     => $baseUrl,
+            'list_url'     => $novelUrl,
+            'novel_status' => 3,
+            'insert_date'  => $curDatetime,
+            'update_time'  => $curDatetime,
+        ];
         $novel = new NovelMainModel;
-        $novel->name = $info['name'] ?? '';
-        $novel->base_url = $baseUrl;
-        $novel->list_url = $novelUrl;
-        $novel->novel_status = 3;
-        $novel->insert_date = $curDatetime;
-        $novel->update_time = $curDatetime;
-        $isOk = $novel->save();
+        $isOk = $novel->updateOrCreate([
+            'name'     => $newData['name'],
+            'list_url' => $newData['list_url'],
+        ], $newData);
+
+        return $isOk;
     }
-
-
 }
