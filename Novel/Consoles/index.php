@@ -23,10 +23,21 @@ $classBox = [];
 getConsoleClass();
 // 通过 传入的 signature 识别出要执行的程序
 $signature = $params[1] ?? '';
-if (empty($signature)) throw new \Exception("请传入正确的脚本命令！", -1);
-$obj = $classBox[$signature] ?? '';
-if (empty($obj)) throw new \Exception("无法识别的命令行脚本！", -2);
-$obj->handle();
+
+// 没有子命令，则打印出支持的子命令
+if (empty($signature)) {
+    printUsage();
+    die;
+}
+try {
+    if (empty($signature)) throw new \Exception("请传入正确的脚本命令！", -1);
+    $obj = $classBox[$signature] ?? '';
+    if (empty($obj)) throw new \Exception("无法识别的命令行脚本！", -2);
+    $obj->handle();
+} catch (\Exception $e) {
+    $errMsg = $e->getMessage();
+    echo "异常：【{$errMsg}】\n";
+}
 die;
 
 // 获取并解析命令行脚本
@@ -60,4 +71,20 @@ function getConsoleClass($dir = 'Novel/Consoles')
             getConsoleClass($dir);
         }
     }
+}
+
+// 打印命令行的使用方式
+function printUsage()
+{
+    global $classBox;
+    $sigArr = array_keys($classBox);
+    $sigArrStr = implode(PHP_EOL."\t", $sigArr);
+    echo <<<USAGE
+Run some scripts for terminal.    
+
+Usage: php Novel/Consoles/index.php <command>
+
+Available commands:
+\t{$sigArrStr}
+USAGE;
 }
