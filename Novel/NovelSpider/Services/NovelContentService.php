@@ -73,7 +73,7 @@ class NovelContentService
         if (empty($oneTaskData)) {
             return ['status'=>101, 'message'=>'task参数为空！没有任务数据'];
         }
-        $novel = new Test();
+        $novel = new NovelService();
         // 获取详情页的结果
         $detailInfo = $novel->getDetail($oneTaskData);
         if ($detailInfo['status'] != 1) {

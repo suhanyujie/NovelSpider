@@ -65,7 +65,6 @@ class NovelService
     }
 
     // 获取小说的章节列表
-
     public function storeList($chapterList = [])
     {
         if (empty($chapterList)) {
