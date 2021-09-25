@@ -11,6 +11,7 @@
 namespace Novel\NovelSpider\Controller;
 
 use QL\QueryList;
+use Libs\Helper\PublicFunction;
 
 class ListSpider
 {
@@ -59,15 +60,14 @@ class ListSpider
     public function getList()
     {
         $url = $this->mainUrl;
-        $rules = [
-            'list' => [$this->mainSelector, 'html',],
-        ];
         // 因为 `QueryList::html($html)->encoding('UTF-8', 'GBK')` 的编码转换有问题，所以换一种方法转换编码。
         // $hj = QueryList::Query($url, $rules, $this->mainSelector, 'utf-8');
-        $html = file_get_contents($url);
+        $html = PublicFunction::getHtmlContents($url);
         $html = iconv('GBK', 'UTF-8' . '//IGNORE', $html);
         $hj = QueryList::html($html)
-            ->rules($rules)
+            ->rules([
+                'list' => [$this->mainSelector, 'html',],
+            ])
             ->query();
         $dataObj = $hj->getData(function ($aEle) {
             // `range('dd')` 很重要，用于匹配多个结果集（在 n 个区域中，匹配到 n 个结果）。

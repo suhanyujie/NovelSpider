@@ -35,4 +35,26 @@ class CurlRequest
         $result = self::$singleInstance->httpRequest($options);
         // todo
     }
+
+    /**
+     * @desc post 请求
+     */
+    public static function get($params = [])
+    {
+        $options = [
+            'url'    => '',
+            'method' => 'get',//
+            'header' => [
+
+            ],
+            'body'   => '',
+        ];
+        $options = array_merge($options, $params);
+        if (empty(self::$singleInstance)) {
+            self::$singleInstance = new self();
+        }
+        $result = self::$singleInstance->httpRequest($options);
+
+        return $result;
+    }
 }

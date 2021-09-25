@@ -20,8 +20,8 @@ class SmallFuncTest extends TestCase
     public function testListSpider()
     {
         $input = [
-            'base_url'=>'http://www.biduowu.com/',
-            'list_url'=>'http://www.biduowu.com/biquge/17_17308/',
+            'base_url'=>'https://www.bbiquge.net',
+            'list_url'=>'https://www.bbiquge.net/book_30825/',
         ];
         $service = new ListSpider($input);
         $res = $service->getList();

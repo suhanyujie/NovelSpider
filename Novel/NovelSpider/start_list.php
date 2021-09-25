@@ -99,6 +99,10 @@ $listTask->onWorkerStart = function ($listTask) use ($defaultNovelConfig) {
             $novelService->setBaseUrl($oneOfList->base_url);
             $novelService->setNovelId($item->id);
             $chapterList = $novelService->getList();
+            if (empty($chapterList)) {
+                echo "[info] 匹配到的章节列表为空".PHP_EOL;
+                return;
+            }
             try {
                 $novelService->storeList($chapterList);
             } catch (Exception $e) {

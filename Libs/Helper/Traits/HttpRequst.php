@@ -36,26 +36,35 @@ trait HttpRequst
     public function httpRequest($paramArr=[])
     {
         $options = [
-            'url'    => '',
+            'url' => '',
             'method' => 'post',//
             'header' => [],
-            'body'   => '',
-            'multipart'   => [],
-            'debug'  => '',
+            'body' => '',
+            'multipart' => [],
+            'debug' => '',
+            'returnType' => 'origin',// 返回类型。enum string，origin:原样返回；api:api 的结构对象。
         ];
         is_array($paramArr) && $options = array_merge($options, $paramArr);
-        extract($options);
         $httpClient = $this->getClient();
         try {
-            $response = $httpClient->request(strtoupper($options['method']), $options['url'], [
-                'headers'   => $options['header'],
-                'body'      => $options['body'],
-                'multipart' => $options['multipart'],
-            ]);
+            $method = strtoupper($options['method']);
+            $requestOptions = [];
+            if (!in_array($method, ['GET', 'OPTION', ])) {
+                $requestOptions = [
+                    'headers'   => $options['header'],
+                    'body'      => $options['body'],
+                    'multipart' => $options['multipart'],
+                ] + $options;
+            }
+
+            $response = $httpClient->request($method, $options['url'], $requestOptions);
         } catch (\Exception $e) {
             return ['status' => $e->getCode(), 'message' => '请求错误，原因：' . $e->getMessage()];
         }
         $responseBodyStr = (string)$response->getBody();
+        if ($options['returnType'] === 'origin') {
+            return $responseBodyStr;
+        }
         if ($options['debug'] == 2) {
             echo $responseBodyStr;exit('--debug--'.PHP_EOL);
         }
@@ -73,7 +82,7 @@ trait HttpRequst
         if(isset($this->httpTraitData['httpClient']))return $this->httpTraitData['httpClient'];
         $this->httpTraitData['httpClient'] = new Client([
             'base_uri' => '',
-            'timeout'  => 30,
+            'timeout'  => 10,
         ]);
 
         return $this->httpTraitData['httpClient'];
