@@ -10,6 +10,7 @@ namespace Novel\NovelSpider\Services;
 
 use Exception;
 use Libs\Helper\NumberTransfer;
+use Libs\Helper\PublicFunction;
 use Novel\NovelSpider\Models\NovelContentModel;
 use Novel\NovelSpider\Models\NovelListModel;
 use Novel\NovelSpider\Models\NovelMainModel;
@@ -77,6 +78,10 @@ class NovelService
         foreach ($chapterListGroup as $kg => $oneGroup) {
             $insertMulData = [];
             foreach ($oneGroup as $k => $oneChapter) {
+                if (!isset($oneChapter['title'])) {
+                    var_dump($oneChapter);
+                    throw new \Exception("标题匹配异常。", -1);
+                }
                 // 检查是否有章节数字
                 $isMatch = preg_match("@(\d{1,})@", $oneChapter['title'], $pregRes);
                 if ($isMatch) {
@@ -176,7 +181,7 @@ class NovelService
      * @param array $taskData
      * @return bool
      */
-    public function getDetail($taskData, $type = 2)
+    public function getDetail($taskData = [], $type = 2)
     {
         if (empty($taskData)) {
             $message = date('Y-m-d H:i:s') . "-->没有url可以抓取详情啦~" . PHP_EOL;
@@ -184,16 +189,18 @@ class NovelService
         }
         $url = $taskData['url'];
         //$url = 'http://www.biquwu.cc/biquge/17_17308/c5056844.html';// test data
-        //->encoding('UTF-8','GB2312')
-        $hj = QueryList::get($url)->rules([
-            "title"   => ['.bookname>h1', 'html'],
-            "content" => ['#content', 'html'],
-        ])->query(function ($item) {
-            $item['title'] = iconv('gbk', 'utf-8//IGNORE', $item['title']);
-            $item['content'] = iconv('gbk', 'utf-8//IGNORE', $item['content']);
+
+        $html = PublicFunction::getHtmlContents($url);
+        $res = QueryList::html($html)->rules([
+            "title"   => ['.bookname>h1', 'text'],
+            "content" => ['#content', 'text'],
+        ])->removeHead()->query()->getData(function ($item) {
+            if (isset($item['content'])) {
+                $item['content'] = trim($item['content']);
+            }
             return $item;
-        })->getData();
-        $detailData = $hj->first();
+        });
+        $detailData = $res->all();
         $detailData['chapter'] = $taskData['chapter'];
 
         return ['status' => 1, 'data' => $detailData, 'message' => '获取详情成功！'];
@@ -433,25 +440,30 @@ class NovelService
     {
         global $envConfig;
         $defaultNovelConfig = $envConfig['first_section'] ?? [];
+        // 如果表中没有小说，则默认一个小说《大宋王侯》。
         $url = 'http://www.biquwu.cc/biquge/17_17308/';
         $url = $this->listUrl ?? $url;
-        $rule = [
-            "listHtml" => [$defaultNovelConfig['DEFAULT_NOVEL_LIST_A_RULE'] ?? '', 'html'],// a链接
-            "title"    => [$defaultNovelConfig['DEFAULT_NOVEL_LIST_TITLE_RULE'] ?? '', 'text'],// 章节标题
-            "href"     => [$defaultNovelConfig['DEFAULT_NOVEL_LIST_LINK_RULE'] ?? '', 'href'],// 章节链接
-        ];
-        $qr = QueryList::get($url, null, ['timeout'=>30,])->rules($rule)
-            ->encoding('UTF-8', 'GB2312')
-            ->removeHead()
-            ->query();
-        $data = (array)$qr->getData(function ($item) {
-            $item['full_url'] = $this->getBaseUrl()."{$item['href']}";
-            return $item;
-        });
-        // 一维数组的键是`*items`，因此降维处理
-        $data = array_pop($data);
+        // 直接通过 `get()->rules()->encoding()` 指定编码时会出现问题，这是 queryList 的 bug。因此这里换一种解析网页的方式解决这个问题。
+        // 即：先通过 file_get_contents 获取 html 内容，然后转码，再进行内容解析。
+        $html = PublicFunction::getHtmlContents($url);
+        // 先从 html 中拿出列表的 html
+        $chapterList = QueryList::html($html)->rules([
+            'listHtml'=>[$defaultNovelConfig['DEFAULT_NOVEL_LIST_BOX_RULE'] ?? '', 'html'],// list box html
+        ])->removeHead()->query()->getData(function ($item)use($defaultNovelConfig) {
+            $oneChapterQr = QueryList::html($item['listHtml'])->rules([
+                "listHtml" => [$defaultNovelConfig['DEFAULT_NOVEL_LIST_RULE'] ?? '', 'html'],// list box html
+                "title"    => [$defaultNovelConfig['DEFAULT_NOVEL_LIST_TITLE_RULE'] ?? '', 'text'],// 章节标题
+                "href"     => [$defaultNovelConfig['DEFAULT_NOVEL_LIST_LINK_RULE'] ?? '', 'href'],// 章节链接
+            ])->range($defaultNovelConfig['DEFAULT_NOVEL_LIST_ITEM_BOX_RULE'] ?? 'dd')->query()->getData(function ($item)use($defaultNovelConfig) {
+                if (isset($item['href'])) {
+                    $item['href'] = ($defaultNovelConfig['DEFAULT_NOVEL_BASE_URL'] ?? '') . $item['href'];
+                }
+                return $item;
+            });
+            return $oneChapterQr->all();
+        })->all();
 
-        return $data;
+        return $chapterList;
     }
 
     /**

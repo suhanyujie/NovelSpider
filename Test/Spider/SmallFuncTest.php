@@ -1,29 +1,51 @@
 <?php
 /**
- * @desc: 爬虫小模块的 测试
- * Created by PhpStorm.
- * User: suhanyu
- * Date: 17/4/24
- * Time: 上午8:45
+ * @desc: 爬虫小模块的测试
  */
 
 
 namespace Test\Spider;
 
+use Novel\NovelSpider\Services\NovelService;
 use PHPUnit\Framework\TestCase;
 use Novel\NovelSpider\Controller\ListSpider;
 
-include("/www/www/vendor/autoload.php");
+require("../../vendor/autoload.php");
 
-class SmallFunc extends TestCase
+// some init
+$envConfig = parse_ini_file(__DIR__ . "/../../.env", true);
+
+class SmallFuncTest extends TestCase
 {
     public function testListSpider()
     {
-        $service = new ListSpider();
+        $input = [
+            'base_url'=>'http://www.biduowu.com/',
+            'list_url'=>'http://www.biduowu.com/biquge/17_17308/',
+        ];
+        $service = new ListSpider($input);
         $res = $service->getList();
         // 索引数组,并且单元个数超过10
-        $this->assertArrayHasKey(10, $res);
+        $this->assertIsArray($res, "getList error");
     }
 
+    public function testNovelService()
+    {
+        $service = new NovelService();
+        $res = $service->getList();
+        // 索引数组,并且单元个数超过10
+        $this->assertIsArray($res, "getList error");
+    }
 
+    // 测试获取内容详情
+    public function testNovelDetail()
+    {
+        $service = new NovelService();
+        $res = $service->getDetail([
+            'url' => 'http://www.biqigewx.com/1_1383/999165.html',
+            'chapter'=> "chapter 001"
+        ]);
+        // 索引数组,并且单元个数超过10
+        $this->assertEquals(1, $res['status'], "getDetail error");
+    }
 }//  end of class

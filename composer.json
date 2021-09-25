@@ -7,16 +7,16 @@
       "jaeger/querylist": "^4.0.3",
       "predis/predis": "^1.0",
       "monolog/monolog": "^1.23",
-      "illuminate/database": "^5.6",
+      "illuminate/database": "^8.61.0",
       "lcobucci/jwt": "^3.2",
-      "illuminate/container": "^5.7",
+      "illuminate/container": "^8.61.0",
+      "illuminate/support": "^8.61.0",
       "psr/http-message": "^1.0",
-      "league/route": "^4.2",
-      "zendframework/zend-diactoros": "^2.1"
+      "league/route": "^4.2"
 
    },
    "require-dev": {
-      "phpunit/phpunit": "5.5.*",
+      "phpunit/phpunit": "^8",
       "eaglewu/swoole-ide-helper": "dev-master"
    },
    "autoload": {
@@ -31,6 +31,10 @@
       }
    },
    "repositories": {
+      "packagist": {
+         "type": "composer",
+         "url": "https://mirrors.aliyun.com/composer/"
+      }
 
    }
 }

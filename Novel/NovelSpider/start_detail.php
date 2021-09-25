@@ -76,7 +76,7 @@ $task->onWorkerStart = function ($task) {
                 echo "Error:\t" . $e->getMessage()."\t".$e->getFile()."\t".$e->getLine().
                     "\t"."章节：{$oneData['name']}"." 地址：{$oneData['url']}"."\n";
             }
-            $random = mt_rand(3, 6);
+            $random = mt_rand(4, 10);
             sleep($random);
         }
         StatusChangeService::setStatusChapterDetailCollected($novelId);

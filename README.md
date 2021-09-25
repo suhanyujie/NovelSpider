@@ -60,6 +60,7 @@
 * ![deal_status_transfer](./doc/images/deal_status_transfer.png)
 
 #### 一些记录
+* 将 [`illuminate/database`](https://github.com/illuminate/database) 升级到 `^8.61.0`
 * dom解析使用一个[dom解析服务](https://github.com/suhanyujie/practice/tree/master/htmlParserServer)  20190406
 * 实现和前端NovelSpiderFrontend的简单交互                                     20190405
 * 去除软件包`indieteq/indieteq-php-my-sql-pdo-database-class`，改用`illuminate/database`  20190303

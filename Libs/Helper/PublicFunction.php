@@ -23,4 +23,20 @@ class PublicFunction
         $path = dirname(dirname(__DIR__)).'/storage';
         return $path;
     }
+
+    // 获取网页内容，并将 gbk 转换为 utf-8
+    public static function getHtmlContents($url = ''): string
+    {
+        $opts = array(
+            'http'=>array(
+                'method'=>"GET",
+                'header'=>"Accept-language: en\r\n" .
+                    "Cookie: foo=bar\r\n".
+                    "Cookie: foo=bar\r\n"
+            )
+        );
+        $context = stream_context_create($opts);
+        $html = file_get_contents($url, false, $context);
+        return iconv('GBK', 'UTF-8' . '//IGNORE', $html);
+    }
 }
