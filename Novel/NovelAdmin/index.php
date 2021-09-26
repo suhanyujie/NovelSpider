@@ -25,10 +25,11 @@ define('ROOT', realpath(__DIR__.'/../../'));
 $envConfig = parse_ini_file(__DIR__ . "/../../.env", true);
 
 //配置web服务器
-$port = $envConfig['web']['WEB_SITE_PORT'] ?? 8080;
-$web  = new WebServer('http://0.0.0.0:' . $port);
-$web->addRoot($envConfig['web']['host'], __DIR__ . '/../../Frontend/dist');
-$web->count = 3;
+// web 服务器通过前端仓库代码执行 https://github.com/suhanyujie/NovelSpiderFrontend
+//$port = $envConfig['web']['WEB_SITE_PORT'] ?? 8080;
+//$web  = new WebServer('http://0.0.0.0:' . $port);
+//$web->addRoot($envConfig['web']['host'], __DIR__ . '/../../Frontend/dist');
+//$web->count = 3;
 
 //配置接口服务器，用于处理接口访问
 $apiPort = $envConfig['web']['API_SITE_PORT'] ?? 8081;
@@ -79,7 +80,7 @@ $apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
     if (!is_string($response)) {
         Response::setAccessAllowHeader();
         $response = json_encode($response, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
-        Http::header('Content-length:'.strlen($response));
+        // Http::header('Content-length:'.strlen($response));
     }
 
     $connection->send($response);

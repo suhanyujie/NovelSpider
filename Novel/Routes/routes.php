@@ -20,6 +20,7 @@ if (is_null(PrivateStorage::$router)) {
 $router->get('/', 'Novel\Controllers\Access\LoginController::login');
 //$router->get('/home', 'Novel\Controllers\Access\LoginController::login');
 
-
 //Macaw::get('/', 'Novel\Controllers\Access\LoginController@login');
 
+// 获取小说列表
+$router->get('/Spider/MainList/list', 'Novel\Controllers\Spider\MainListController::list');
