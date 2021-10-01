@@ -14,6 +14,8 @@ require_once __DIR__ . "/../../vendor/autoload.php";
 use Libs\Core\Container\Application;
 use Libs\Core\Http\Request as RequestTool;
 use Libs\Core\Store\PrivateStorage;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Workerman\Protocols\Http;
 use Workerman\WebServer;
 use Workerman\Worker;
@@ -41,7 +43,8 @@ $iconContent = file_get_contents(__DIR__.'/../../favicon.ico');
 PrivateStorage::$container =
 $app = new Application();
 
-$apiServ->onWorkerStart = function ()use($app) {
+$router = new League\Route\Router;
+$apiServ->onWorkerStart = function ()use($app, $router) {
     //加载全局辅助函数
     require_once ROOT.'/Libs/Helper/functions.php';
     //加载路由
@@ -54,7 +57,7 @@ $apiServ->onWorkerStart = function ()use($app) {
     // $app->bind(Router::class, Router::class);
 };
 
-$apiServ->onMessage = function ($connection, $data)use($iconContent, &$app) {
+$apiServ->onMessage = function ($connection, $data)use($iconContent, &$app, $router) {
     // 针对OPTIONS请求 做处理
     if (isset($data['server']['REQUEST_METHOD']) && $data['server']['REQUEST_METHOD'] == 'OPTIONS') {
         Response::setAccessAllowHeader();

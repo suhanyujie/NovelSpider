@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: suhanyu
- * Date: 19/1/8
- * Time: 上午9:23
- */
-
 namespace Libs\Core\Http;
 
 use Exception;
@@ -31,14 +24,14 @@ class Request implements RequestInterface
      */
     public function __construct($data = [])
     {
-        $this->data['reqeustData'] = $data;
+        $this->data['requestData'] = $data;
     }
 
-    public function handleRequest($requestUri = '')
+    public function handleRequest($requestUri = ''): mixed
     {
         try {
             $controllerInfo = RequestTool::getControllerInfo($requestUri);
-            $controller = RequestTool::getControllerIns($controllerInfo['cPath'], $this->data['reqeustData']);
+            $controller = RequestTool::getControllerIns($controllerInfo['cPath'], $this->data['requestData']);
             $result = $controller->{$controllerInfo['a']}();
         } catch (Exception $e) {
             return ['status' => $e->getCode(), 'msg' => $e->getMessage()];
@@ -48,7 +41,7 @@ class Request implements RequestInterface
     }
 
     //workerman中将uri信息解析为控制器和方法名
-    public static function getControllerInfo($uri = '')
+    public static function getControllerInfo($uri = ''): array
     {
         $defaultController = ConfigLoader::config('access.http@defaultController');
         $defaultAction = ConfigLoader::config('access.http@defaultAction');

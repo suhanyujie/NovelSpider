@@ -5,7 +5,7 @@ use Novel\Controllers\Controller;
 
 class MainListController extends Controller
 {
-    public function list()
+    public function list(): array
     {
         $dataArr = [
             [
