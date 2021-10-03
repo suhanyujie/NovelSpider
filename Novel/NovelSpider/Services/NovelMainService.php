@@ -8,6 +8,7 @@
 
 namespace Novel\NovelSpider\Services;
 
+use Novel\NovelSpider\Models\NovelMainModel;
 use QL\QueryList;
 
 /**
@@ -20,6 +21,30 @@ class NovelMainService
     public function __construct()
     {
 
+    }
+
+    // 获取小说列表
+    public function getMainList($params = [])
+    {
+        $option = [
+            'page' => 1,
+            'size' => 20,
+        ];
+        $option = array_merge($option, $params);
+        $offset = ($option['page'] - 1) * $option['size'];
+        $list = (new NovelMainModel)->getList([
+            'offset' => $offset,
+            'limit' => $option['size'],
+        ]);
+        if (empty($list)) {
+            throw new \Exception("该小说不存在！", -1);
+        }
+        return [
+            'status' => 1,
+            'data' => [
+                'list' => $list,
+            ],
+        ];
     }
 
     /**
