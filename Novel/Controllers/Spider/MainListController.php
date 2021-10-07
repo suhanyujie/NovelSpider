@@ -2,32 +2,15 @@
 namespace Novel\Controllers\Spider;
 
 use Novel\Controllers\Controller;
+use Novel\NovelSpider\Services\NovelMainService;
 
 class MainListController extends Controller
 {
     public function list(): array
     {
-        $dataArr = [
-            [
-                'name'=>'samuel1',
-                'email'=>'sa@qq.com',
-                'createTime'=>'2019-04-05 13:07:34',
-            ],
-            [
-                'name'=>'samuel1',
-                'email'=>'sa@qq.com',
-                'createTime'=>'2019-04-05 13:07:34',
-            ],
-            [
-                'name'=>'samuel1',
-                'email'=>'sa@qq.com',
-                'createTime'=>'2019-04-05 13:07:34',
-            ],
-        ];
+        $svc = new NovelMainService;
+        $res = $svc->getMainList();
 
-        return [
-            'status' => 1,
-            'data'   => $dataArr,
-        ];
+        return $res;
     }
 }

@@ -24,7 +24,7 @@ class NovelMainService
     }
 
     // 获取小说列表
-    public function getMainList($params = [])
+    public function getMainList($params = []): array
     {
         $option = [
             'page' => 1,
